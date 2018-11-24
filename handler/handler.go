@@ -1,10 +1,10 @@
 package handler
 
 import (
+	"code.aliyun.com/zmdev/wechat_rank/handler/middleware"
 	"code.aliyun.com/zmdev/wechat_rank/server"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"code.aliyun.com/zmdev/wechat_rank/handler/middleware"
 )
 
 func CreateHTTPHandler(svr *server.Server) http.Handler {

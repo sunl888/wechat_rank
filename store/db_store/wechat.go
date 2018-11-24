@@ -1,8 +1,8 @@
 package db_store
 
 import (
-	"github.com/jinzhu/gorm"
 	"code.aliyun.com/zmdev/wechat_rank/model"
+	"github.com/jinzhu/gorm"
 )
 
 type dbWechat struct {

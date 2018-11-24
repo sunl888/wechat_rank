@@ -1,17 +1,19 @@
 package server
 
 import (
-	"github.com/jinzhu/gorm"
-	"time"
+	"code.aliyun.com/zmdev/wechat_rank/config"
 	"code.aliyun.com/zmdev/wechat_rank/model"
-	"log"
-	"fmt"
-	"go.uber.org/zap"
+	"code.aliyun.com/zmdev/wechat_rank/service"
 	"code.aliyun.com/zmdev/wechat_rank/store"
 	"code.aliyun.com/zmdev/wechat_rank/store/db_store"
-	"code.aliyun.com/zmdev/wechat_rank/service"
-	"code.aliyun.com/zmdev/wechat_rank/config"
+	"fmt"
+	"github.com/jinzhu/gorm"
+	// 引入数据库驱动注册及初始化
+	_ "github.com/go-sql-driver/mysql"
+	"go.uber.org/zap"
+	"log"
 	"os"
+	"time"
 )
 
 func setupGorm(debug bool, driverName, dbHost, dbPort, dbName, dbUser, dbPassword string) *gorm.DB {
@@ -32,6 +34,7 @@ func setupGorm(debug bool, driverName, dbHost, dbPort, dbName, dbUser, dbPasswor
 			autoMigrate(db)
 			return db
 		}
+		fmt.Println(driverName, dataSourceName)
 		log.Println(err)
 		time.Sleep(2 * time.Second)
 	}

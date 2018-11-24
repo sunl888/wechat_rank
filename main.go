@@ -1,10 +1,10 @@
 package main
 
 import (
-	"code.aliyun.com/zmdev/wechat_rank/server"
 	"code.aliyun.com/zmdev/wechat_rank/handler"
-	"net/http"
+	"code.aliyun.com/zmdev/wechat_rank/server"
 	"log"
+	"net/http"
 )
 
 func main() {
