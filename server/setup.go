@@ -6,6 +6,7 @@ import (
 	"code.aliyun.com/zmdev/wechat_rank/service"
 	"code.aliyun.com/zmdev/wechat_rank/store"
 	"code.aliyun.com/zmdev/wechat_rank/store/db_store"
+	"code.aliyun.com/zmdev/wechat_rank/utils"
 	"fmt"
 	"github.com/jinzhu/gorm"
 	// 引入数据库驱动注册及初始化
@@ -34,17 +35,18 @@ func setupGorm(debug bool, driverName, dbHost, dbPort, dbName, dbUser, dbPasswor
 			autoMigrate(db)
 			return db
 		}
-		fmt.Println(driverName, dataSourceName)
 		log.Println(err)
 		time.Sleep(2 * time.Second)
 	}
-	log.Fatalf("数据库链接失败！error: %+v", err)
+	log.Fatalf("数据库链接失败！ error: %+v", err)
 	return nil
 }
 
 func autoMigrate(db *gorm.DB) {
 	db.AutoMigrate(
 		&model.Wechat{},
+		&model.Category{},
+		&model.Article{},
 	)
 }
 
@@ -77,12 +79,18 @@ func SetupServer() *Server {
 func setupStore(s *Server) store.Store {
 	return store.NewStore(
 		db_store.NewDBWechat(s.DB),
+		db_store.NewDBCategory(s.DB),
+		db_store.NewDBArticle(s.DB),
 	)
 }
 
 func SetupService(serv *Server) service.Service {
+	qingboWeixinClient := utils.NewQingboClient(serv.Conf.Qingbo.AppKey, serv.Conf.Qingbo.AppId, "weixin")
+
 	s := setupStore(serv)
 	return service.NewService(
-		service.NewWechatService(s),
+		service.NewWechatService(s, qingboWeixinClient),
+		service.NewCategoryService(s),
+		service.NewArticleService(s),
 	)
 }

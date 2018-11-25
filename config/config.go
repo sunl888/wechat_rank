@@ -22,10 +22,15 @@ type RedisConfig struct {
 	Port    string
 }
 
+type QingboConfig struct {
+	AppId  string
+	AppKey string
+}
 type Config struct {
 	EnvVarPrefix string         `json:"env-var-prefix"`
 	DB           DatabaseConfig `json:"database"`
 	Redis        RedisConfig    `json:"redis"`
+	Qingbo       QingboConfig   `json:"qingbo"`
 }
 
 func LoadConfig() Config {
