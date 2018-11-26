@@ -85,11 +85,12 @@ func setupStore(s *Server) store.Store {
 }
 
 func SetupService(serv *Server) service.Service {
-	qingboWeixinClient := utils.NewQingboClient(serv.Conf.Qingbo.AppKey, serv.Conf.Qingbo.AppId, "weixin")
+	qingboClient := utils.NewQingboClient(serv.Conf.Qingbo.AppKey, serv.Conf.Qingbo.AppId)
 
+	officialAccount := utils.NewOfficialAccount(qingboClient)
 	s := setupStore(serv)
 	return service.NewService(
-		service.NewWechatService(s, qingboWeixinClient),
+		service.NewWechatService(s, officialAccount),
 		service.NewCategoryService(s),
 		service.NewArticleService(s),
 	)

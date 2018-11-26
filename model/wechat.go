@@ -2,13 +2,15 @@ package model
 
 import "time"
 
+// 公众号
 type Wechat struct {
 	Id         int64 `gorm:"primary_key"`
-	Title      string
-	Name       string `gorm:"unique_index"`
-	Desc       string `gorm:"type:varchar(255)"`
-	Logo       string `gorm:"type:varchar(255)"`
-	Vip        string
+	VerifyName string
+	WxName     string `gorm:"unique_index"`
+	WxNote     string `gorm:"type:varchar(255)"`
+	WxLogo     string `gorm:"type:varchar(255)"`
+	WxVip      string
+	WxQrcode   string
 	CategoryId int64
 	CreatedAt  time.Time
 	UpdatedAt  time.Time

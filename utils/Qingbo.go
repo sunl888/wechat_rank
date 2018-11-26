@@ -15,11 +15,10 @@ type QingboClient struct {
 	Signature
 }
 
-func NewQingboClient(appKey, appId, service string) *QingboClient {
+func NewQingboClient(appKey, appId string) *QingboClient {
 	return &QingboClient{
 		AppKey:  appKey,
 		AppId:   appId,
-		Service: service,
 		Version: "v1",
 		Url:     "http://api.gsdata.cn/",
 	}
@@ -33,8 +32,8 @@ func (q *QingboClient) SetVersion(version string) {
 	q.Version = version
 }
 
-func (q *QingboClient) Get(uri string, query string) (string, error) {
-	url := q.Url + q.Service + "/" + q.Version + "/" + uri
+func (q *QingboClient) get(uri string, query, service string) (string, error) {
+	url := q.Url + service + "/" + q.Version + "/" + uri
 	resp, err := q.send("GET", url, map[string]string{"query": query})
 
 	return resp, err
