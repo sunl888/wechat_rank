@@ -8,12 +8,15 @@ import (
 )
 
 func main() {
-	//qingboWeixinClient := utils.NewQingboClient("hE8COKMsiobwWPlXdqgnING2hmbchdoA", "1345", "weixin")
-	//resp, err :=qingboWeixinClient.Get("users","wx_name=hnnu1958")
+	//qingboWeixinClient := utils.NewQingboClient("hE8COKMsiobwWPlXdqgnING2hmbchdoA", "1345")
+	//official := utils.NewOfficialAccount(qingboWeixinClient)
+	//resp, err := official.GetArticles("hnnu1958", "", 50, 0)
 	//if err != nil {
 	//	panic(err)
 	//}
-	//fmt.Println(resp)
+	//for _, r := range resp.DataResp {
+	//	fmt.Println(r.Title,r.CreatedAt)
+	//}
 
 	svr := server.SetupServer()
 	log.Fatal(http.ListenAndServe(":8080", handler.CreateHTTPHandler(svr)))

@@ -7,6 +7,7 @@ import (
 	"github.com/emirpasic/gods/sets/hashset"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -18,7 +19,7 @@ const (
 	ISO8601_BASIC = "20060102T150405Z"
 )
 
-func (s *Signature) SignRequest(request *http.Request, appId, appKey string) {
+func (s *Signature) SignRequest(request *http.Request, qClient *QingboClient) {
 	// 必须使用 GMT Time
 	hour, _ := time.ParseDuration("-8h")
 	now := time.Now().Add(hour).Format(ISO8601_BASIC)
@@ -30,21 +31,22 @@ func (s *Signature) SignRequest(request *http.Request, appId, appKey string) {
 	h := sha256.New()
 	sumBody := fmt.Sprintf("%x", h.Sum(body))
 
+	qClientUrl, err := url.Parse(qClient.Url)
 	request.Header.Set("x-gsdata-date", now)
-	request.Header.Set("Host", "api.gsdata.cn")
+	request.Header.Set("Host", qClientUrl.Host)
 	request.Header.Set("Accept", "application/json")
 	request.Header.Set("User-Agent", "GSDATA-v"+VERSION+"-SDK")
 
 	creq, headers := s.createContext(request, sumBody)
 	toSign := s.createStringToSign(now, creq)
 
-	signingKey := s.getSigningKey(now[0:8], request.URL.EscapedPath(), appKey)
+	signingKey := s.getSigningKey(now[0:8], request.URL.EscapedPath(), qClient.AppKey)
 
 	mac := hmac.New(sha256.New, signingKey)
 	mac.Write([]byte(toSign))
 	signature := fmt.Sprintf("%x", mac.Sum(nil))
 
-	request.Header.Set("Authorization", "GSDATA-HMAC-SHA256 AppKey="+appId+", "+"SignedHeaders="+headers+", Signature="+signature)
+	request.Header.Set("Authorization", "GSDATA-HMAC-SHA256 AppKey="+qClient.AppId+", "+"SignedHeaders="+headers+", Signature="+signature)
 }
 
 func (s *Signature) createContext(r *http.Request, sumBody string) (creq, headers string) {

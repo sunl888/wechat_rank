@@ -2,8 +2,10 @@ package utils
 
 import (
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type QingboClient struct {
@@ -35,7 +37,6 @@ func (q *QingboClient) SetVersion(version string) {
 func (q *QingboClient) get(uri string, query, service string) (string, error) {
 	url := q.Url + service + "/" + q.Version + "/" + uri
 	resp, err := q.send("GET", url, map[string]string{"query": query})
-
 	return resp, err
 }
 
@@ -49,7 +50,9 @@ func (q *QingboClient) send(method, url string, params map[string]string) (strin
 	if err != nil {
 		panic(err)
 	}
-	q.Signature.SignRequest(req, q.AppId, q.AppKey)
+	q.Signature.SignRequest(req, q)
+	//TODO log
+	log.Printf("[Time: %s] Required URL: %s\n", time.Now().Format("2006/01/02 15:04:05"), req.URL)
 	resp, err := client.Do(req)
 	defer resp.Body.Close()
 

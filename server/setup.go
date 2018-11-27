@@ -92,6 +92,6 @@ func SetupService(serv *Server) service.Service {
 	return service.NewService(
 		service.NewWechatService(s, officialAccount),
 		service.NewCategoryService(s),
-		service.NewArticleService(s),
+		service.NewArticleService(s, officialAccount),
 	)
 }

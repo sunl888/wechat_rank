@@ -37,7 +37,7 @@ func (w *wechatService) WechatCreate(wechat *model.Wechat) error {
 	tmpWechat, err := w.WechatStore.WechatLoad(wechat.WxName)
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
-			wechatResp, err := w.client.GetOfficialAccount(wechat.WxName)
+			wechatResp, err := w.client.GetAccount(wechat.WxName)
 			if err != nil {
 				return err
 			}
