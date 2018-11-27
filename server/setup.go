@@ -73,6 +73,7 @@ func SetupServer() *Server {
 	if err != nil {
 		log.Fatal(err)
 	}
+	s.Service = setupService(s)
 	return s
 }
 
@@ -84,7 +85,7 @@ func setupStore(s *Server) store.Store {
 	)
 }
 
-func SetupService(serv *Server) service.Service {
+func setupService(serv *Server) service.Service {
 	qingboClient := utils.NewQingboClient(serv.Conf.Qingbo.AppKey, serv.Conf.Qingbo.AppId)
 
 	officialAccount := utils.NewOfficialAccount(qingboClient)
