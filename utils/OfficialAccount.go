@@ -7,8 +7,8 @@ import (
 )
 
 var (
-	DefaultPage    = 1
-	DefaultPerPage = 50
+	DefaultPage    = 1  // 获取哪页的文章
+	DefaultPerPage = 50 // 每页显示多少文章
 )
 
 type OfficialAccount struct {
@@ -37,22 +37,22 @@ type AccountResponse struct {
 }
 
 type ArticleData struct {
-	Id            string  `json:"id"`              // 微信文章ID
-	Top           int64   `json:"top"`             // 文章位置
-	Url           string  `json:"url"`             // 微信地址
-	Name          string  `json:"name"`            // 微信昵称
+	Id            string `json:"id"`              // 微信文章ID
+	Top           int64  `json:"top"`             // 文章位置
+	Url           string `json:"url"`             // 微信地址
+	Name          string `json:"name"`            // 微信昵称
 	Type          string `json:"type"`            // 文章类型
-	Title         string  `json:"title"`           // 标题
-	Author        string  `json:"author"`          // 作者
-	Picurl        string  `json:"picurl"`          // 图片链接
-	Digest        string  `json:"digest"`          // 描述
-	WxName        string  `json:"wx_name"`         // 微信账号
-	ReadCount     int64   `json:"read_count"`      // 阅读数
-	LikeCount     int64   `json:"like_count"`      // 点赞数
-	CreatedAt     string  `json:"created_at"`      // 发布时间
-	OriginalUrl   string  `json:"original_url"`    // 原始微信链接
-	WeekReadCount int64   `json:"week_read_count"` // 周阅读数
-	WeekLikeCount int64   `json:"week_like_count"` // 周点赞数
+	Title         string `json:"title"`           // 标题
+	Author        string `json:"author"`          // 作者
+	Picurl        string `json:"picurl"`          // 图片链接
+	Digest        string `json:"digest"`          // 描述
+	WxName        string `json:"wx_name"`         // 微信账号
+	ReadCount     int64  `json:"read_count"`      // 阅读数
+	LikeCount     int64  `json:"like_count"`      // 点赞数
+	CreatedAt     string `json:"created_at"`      // 发布时间
+	OriginalUrl   string `json:"original_url"`    // 原始微信链接
+	WeekReadCount int64  `json:"week_read_count"` // 周阅读数
+	WeekLikeCount int64  `json:"week_like_count"` // 周点赞数
 }
 
 type ArticleResponse struct {
