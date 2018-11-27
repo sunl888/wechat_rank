@@ -21,7 +21,7 @@ func WechatCreate(ctx *gin.Context, wechat *model.Wechat) error {
 	return ctx.Value("service").(Service).WechatCreate(wechat)
 }
 
-func CategoryCreate(ctx *gin.Context, category *model.Category) (error) {
+func CategoryCreate(ctx *gin.Context, category *model.Category) error {
 	return ctx.Value("service").(Service).CategoryCreate(category)
 }
 func CategoryList(ctx *gin.Context) ([]*model.Category, error) {

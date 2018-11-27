@@ -92,7 +92,7 @@ func (s *Signature) createContext(r *http.Request, sumBody string) (creq, header
 	return canon, signedHeadersString
 }
 
-func (s *Signature) createStringToSign(lTime, creq string) (string) {
+func (s *Signature) createStringToSign(lTime, creq string) string {
 	h := sha256.New()
 	h.Write([]byte(creq))
 	hash := fmt.Sprintf("%x", h.Sum(nil))
