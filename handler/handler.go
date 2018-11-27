@@ -8,7 +8,6 @@ import (
 )
 
 func CreateHTTPHandler(svr *server.Server) http.Handler {
-	svc := server.SetupService(svr)
 
 	if svr.Debug {
 		gin.SetMode(gin.DebugMode)
@@ -21,7 +20,7 @@ func CreateHTTPHandler(svr *server.Server) http.Handler {
 
 	router := gin.Default()
 
-	router.Use(middleware.ServiceMiddleware(svc))
+	router.Use(middleware.ServiceMiddleware(svr.Service))
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"hello": "world"})
 	})

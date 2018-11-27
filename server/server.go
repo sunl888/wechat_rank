@@ -5,6 +5,7 @@ import (
 	"github.com/go-redis/redis"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
+	"code.aliyun.com/zmdev/wechat_rank/service"
 )
 
 type Server struct {
@@ -13,4 +14,5 @@ type Server struct {
 	DB          *gorm.DB
 	Conf        config.Config
 	Logger      *zap.Logger
+	Service     service.Service
 }
