@@ -9,8 +9,14 @@ type dbWechat struct {
 	db *gorm.DB
 }
 
+func (w *dbWechat) WechatLoad(wechatName string) (wechat *model.Wechat, err error) {
+	wechat = &model.Wechat{}
+	err = w.db.First(&wechat, "wx_name = ?", wechatName).Error
+	return
+}
+
 func (w *dbWechat) WechatCreate(wechat *model.Wechat) error {
-	return w.db.Create(&wechat).Error
+	return w.db.FirstOrCreate(&wechat, "wx_name = ?", wechat.WxName).Error
 }
 
 func NewDBWechat(db *gorm.DB) model.WechatStore {

@@ -17,6 +17,7 @@ type Wechat struct {
 }
 
 type WechatStore interface {
+	WechatLoad(wechatName string) (wechat *Wechat, err error)
 	WechatCreate(wechat *Wechat) error
 }
 

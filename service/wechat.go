@@ -1,8 +1,10 @@
 package service
 
 import (
+	"code.aliyun.com/zmdev/wechat_rank/errors"
 	"code.aliyun.com/zmdev/wechat_rank/model"
 	"code.aliyun.com/zmdev/wechat_rank/utils"
+	"github.com/jinzhu/gorm"
 )
 
 type wechatService struct {
@@ -32,40 +34,27 @@ type WechatResponse struct {
 }
 
 func (w *wechatService) WechatCreate(wechat *model.Wechat) error {
-	//resp, err := w.qingboClient.Get("users", "wx_name="+wechat.WxName)
-	//if err != nil {
-	//	return err
-	//}
-	//	resp := `{
-	//	"data": [{
-	//		"verify_name": "淮南师范学院",
-	//		"wx_name": "hnnu1958",
-	//		"add_time": "2016-08-26 16:37:34",
-	//		"wx_vip": "认证",
-	//		"wx_note": "淮南师范学院官方公众平台",
-	//		"wx_logo": "http://wx.qlogo.cn/mmhicuiazg1JfFib0CuP4gqPh8ghac8XgliaAibCILOECA/132",
-	//		"wx_account_tags": null,
-	//		"wci": 369.21,
-	//		"wx_nickname": "淮南师范学院",
-	//		"nickname_id": "6050891",
-	//		"wx_qrcode": "https://mp.weixin.qq.com/mp/?scene=10000001&size=100&__biz=MzI2MTMyMTk4NA==&mid=2247491211&idx=1&sn=630b51e9367d76593de1074e474e97d4&scene=0",
-	//		"types": null,
-	//		"wx_biz": "MzI2MTMyMTk4NA=="
-	//	}],
-	//	"application": "4ee4d04d-9312-466a-ae86-3bfb85aa3fda",
-	//	"url": "weixin/v1/users"
-	//}`
-	//	wechatResp := &WechatResponse{}
-	//	err := json.Unmarshal([]byte(resp), wechatResp)
-	//	if err != nil {
-	//		return err
-	//	}
-	wechatResp, err := w.client.GetOfficialAccount(wechat.WxName)
+	tmpWechat, err := w.WechatStore.WechatLoad(wechat.WxName)
 	if err != nil {
-		return err
+		if gorm.IsRecordNotFoundError(err) {
+			wechatResp, err := w.client.GetOfficialAccount(wechat.WxName)
+			if err != nil {
+				return err
+			}
+			if len(wechatResp.DataResp) <= 0 {
+				return errors.BadRequest("公众号不存在", nil)
+			}
+			convert2WechatModel(wechatResp, wechat)
+			err = w.WechatStore.WechatCreate(wechat)
+			if err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
 	}
-	convert2WechatModel(wechatResp, wechat)
-	return w.WechatStore.WechatCreate(wechat)
+	wechat = tmpWechat
+	return nil
 }
 
 func convert2WechatModel(response *utils.AccountResponse, wechat *model.Wechat) {

@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"code.aliyun.com/zmdev/wechat_rank/errors"
 	"code.aliyun.com/zmdev/wechat_rank/model"
 	"code.aliyun.com/zmdev/wechat_rank/service"
 	"github.com/gin-gonic/gin"
@@ -23,7 +22,7 @@ func (w *Wechat) Create(ctx *gin.Context) {
 		CategoryId: l.CategoryId,
 	})
 	if err != nil {
-		_ = ctx.Error(errors.BadRequest("创建失败", nil))
+		_ = ctx.Error(err)
 		return
 	}
 }
