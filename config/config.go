@@ -33,9 +33,9 @@ type Config struct {
 	Qingbo       QingboConfig   `json:"qingbo"`
 }
 
-func LoadConfig() Config {
+func LoadConfig(path string) Config {
 	var c Config
-	fileSource := file.NewSource(file.WithPath("config/config.yml"))
+	fileSource := file.NewSource(file.WithPath(path))
 	checkErr(config.Load(fileSource))
 	// env 的配置会覆盖文件中的配置
 	envSource := env.NewSource(env.WithStrippedPrefix(config.Get("env-var-prefix").String("RANK")))

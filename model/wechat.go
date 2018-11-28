@@ -14,11 +14,14 @@ type Wechat struct {
 	CategoryId int64
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
+	//LastGrabTime string // 最近一次抓取文章的时间 string
 }
 
 type WechatStore interface {
 	WechatLoad(wechatName string) (wechat *Wechat, err error)
+	WechatList() (wechats []*Wechat, err error)
 	WechatCreate(wechat *Wechat) error
+	WechatUpdate(wechat *Wechat) error
 }
 
 type WechatService interface {

@@ -9,6 +9,21 @@ type dbWechat struct {
 	db *gorm.DB
 }
 
+func (w *dbWechat) WechatUpdate(wechat *model.Wechat) error {
+	err := w.db.Model(model.Wechat{}).
+		Where("wx_name = ?", wechat.WxName).
+		Omit("wx_name").
+		Update(&wechat).
+		Error
+	return err
+}
+
+func (w *dbWechat) WechatList() (wechats []*model.Wechat, err error) {
+	wechats = make([]*model.Wechat, 8)
+	err = w.db.Find(&wechats).Error
+	return
+}
+
 func (w *dbWechat) WechatLoad(wechatName string) (wechat *model.Wechat, err error) {
 	wechat = &model.Wechat{}
 	err = w.db.First(&wechat, "wx_name = ?", wechatName).Error

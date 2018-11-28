@@ -74,9 +74,12 @@ func (a *OfficialAccount) GetAccount(accountName string) (*AccountResponse, erro
 	return wechatResp, nil
 }
 
+// 开始时间(格式：yyyy-MM-dd)
 func (a *OfficialAccount) GetArticles(wxName, startDate string, perPage, page int) (*ArticleResponse, error) {
 	sb := strings.Builder{}
-	sb.WriteString("wx_name=" + wxName)
+	if wxName != "" {
+		sb.WriteString("wx_name=" + wxName)
+	}
 	if startDate != "" {
 		sb.WriteString("&start_date=" + startDate)
 	}

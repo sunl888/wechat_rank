@@ -9,6 +9,8 @@ import (
 	"code.aliyun.com/zmdev/wechat_rank/utils"
 	"fmt"
 	"github.com/jinzhu/gorm"
+	"path"
+
 	// 引入数据库驱动注册及初始化
 	_ "github.com/go-sql-driver/mysql"
 	"go.uber.org/zap"
@@ -32,7 +34,9 @@ func setupGorm(debug bool, driverName, dbHost, dbPort, dbName, dbUser, dbPasswor
 		db, err = gorm.Open(driverName, dataSourceName)
 		if err == nil {
 			db.LogMode(debug)
-			autoMigrate(db)
+			if debug {
+				autoMigrate(db)
+			}
 			return db
 		}
 		log.Println(err)
@@ -53,7 +57,12 @@ func autoMigrate(db *gorm.DB) {
 func SetupServer() *Server {
 	s := &Server{}
 	s.Debug = os.Getenv("DEBUG") == "true"
-	s.Conf = config.LoadConfig()
+	var err error
+	pwd, err := os.Getwd()
+	if err != nil {
+		log.Fatalf("获取当前路径失败. ERR:%s", err.Error())
+	}
+	s.Conf = config.LoadConfig(path.Join(pwd, "../../config/config.yml"))
 	// s.RedisClient = setupRedis(s.Conf.Redis.Address + ":" + s.Conf.Redis.Port)
 	s.DB = setupGorm(
 		s.Debug,
@@ -64,7 +73,6 @@ func SetupServer() *Server {
 		s.Conf.DB.User,
 		s.Conf.DB.Password,
 	)
-	var err error
 	if s.Debug {
 		s.Logger, err = zap.NewProduction()
 	} else {
@@ -93,6 +101,6 @@ func setupService(serv *Server) service.Service {
 	return service.NewService(
 		service.NewWechatService(s, officialAccount),
 		service.NewCategoryService(s),
-		service.NewArticleService(s, officialAccount),
+		service.NewArticleService(s),
 	)
 }
