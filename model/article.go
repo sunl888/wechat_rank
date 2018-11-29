@@ -22,7 +22,7 @@ type Article struct {
 }
 
 type ArticleStore interface {
-	ArticleSave(articles []*Article) error
+	ArticleCreate(article *Article) error
 }
 
 type ArticleService interface {

@@ -65,7 +65,8 @@ func SetupServer() *Server {
 	s.Conf = config.LoadConfig(path.Join(pwd, "../../config/config.yml"))
 	// s.RedisClient = setupRedis(s.Conf.Redis.Address + ":" + s.Conf.Redis.Port)
 	s.DB = setupGorm(
-		s.Debug,
+		//s.Debug,
+		false,
 		s.Conf.DB.Driver,
 		s.Conf.DB.Host,
 		s.Conf.DB.Port,

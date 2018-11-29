@@ -65,12 +65,6 @@ func CategoryUpdate(ctx *gin.Context, category *model.Category) error {
 	return ServiceError
 }
 
-func ArticleSave(ctx *gin.Context, articles []*model.Article) error {
-	if service, ok := ctx.Value("service").(Service); ok {
-		return service.ArticleSave(articles)
-	}
-	return ServiceError
-}
 func NewService(wSvc model.WechatService, cSvc model.CategoryService, aSvc model.ArticleService) Service {
 	return &service{wSvc, cSvc, aSvc}
 }

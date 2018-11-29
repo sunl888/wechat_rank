@@ -6,54 +6,53 @@ import (
 	"code.aliyun.com/zmdev/wechat_rank/utils"
 	"fmt"
 	"github.com/urfave/cli"
+	"time"
 )
 
 func NewGetCommand(svr *server.Server) cli.Command {
 	service := svr.Service
-	log := svr.Logger
-
 	return cli.Command{
 		Name:  "get",
 		Usage: "获取所有公众号的最新文章列表",
 		Action: func(c *cli.Context) {
 			qingboClient := utils.NewQingboClient(svr.Conf.Qingbo.AppKey, svr.Conf.Qingbo.AppId)
-			officialAccount := utils.NewOfficialAccount(qingboClient)
+			officialClient := utils.NewOfficialAccount(qingboClient)
 			wechats, err := service.WechatList()
 			if err != nil {
 				return
 			}
+			ch := make(chan int)
 			// 获取每个公众号最近的文章列表
-			for _, w := range wechats {
-				articlesResp, err := officialAccount.GetArticles(w.WxName, "", 50, 1)
-				if err != nil {
-					log.Error(fmt.Sprintf("获取文章失败: %+v\n", err.Error()))
-					continue
+			for i, w := range wechats {
+				go run(svr, officialClient, w, ch, i)
+				if (i+1)%10 == 0 {
+					// 延时1.5秒
+					time.Sleep(1500 * time.Millisecond)
+					fmt.Printf("第%d次延时\n", (i+1)/10)
 				}
-				// 保存文章
-				articles := make([]*model.Article, len(articlesResp.DataResp))
-				articles = convert2ArticlesModel(articlesResp)
-				err = service.ArticleSave(articles)
-				if err != nil {
-					log.Error(fmt.Sprintf("保存文章失败: %+v\n", err.Error()))
-					continue
+			}
+			// 等待所有的goruntine执行完成后退出程序
+			for {
+				if <-ch == len(wechats)-1 {
+					break;
 				}
-				// 保存最近一次获取文章的时间
-				//err = service.WechatUpdate(&model.Wechat{
-				//	WxName:       w.WxName,
-				//	LastGrabTime: time.Now().Format("2006-01-02"),
-				//})
-				//if err != nil {
-				//	log.Error(fmt.Sprintf("更新时间失败: %+v\n", err.Error()))
-				//	continue
-				//}
 			}
 		},
 	}
 }
 
-func convert2ArticlesModel(articlesResp *utils.ArticleResponse) (articles []*model.Article) {
+func run(svr *server.Server, c *utils.OfficialAccount, w *model.Wechat, count chan int, index int) {
+	service := svr.Service
+	log := svr.Logger
+
+	articlesResp, err := c.GetArticles(w.WxName, "", 50, 1)
+	if err != nil {
+		log.Error(fmt.Sprintf("获取文章失败: %+v\n", err.Error()))
+		return
+	}
+	// 保存文章
 	for _, a := range articlesResp.DataResp {
-		articles = append(articles, &model.Article{
+		err := service.ArticleCreate(&model.Article{
 			Url:         a.Url,
 			Name:        a.Name,
 			Title:       a.Title,
@@ -68,6 +67,12 @@ func convert2ArticlesModel(articlesResp *utils.ArticleResponse) (articles []*mod
 			PublishedAt: a.CreatedAt,
 			OriginalUrl: a.OriginalUrl,
 		})
+		if err != nil {
+			log.Error(fmt.Sprintf("保存文章失败: %+v\n", err.Error()))
+			return
+		}
+		time.Sleep(time.Millisecond * 100)
 	}
-	return
+
+	count <- index
 }
