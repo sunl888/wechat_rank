@@ -35,6 +35,4 @@ func main() {
 
 	tt, _ := time.ParseInLocation(DATE_FORMAT, "2018-01-19", time.Local)
 	fmt.Println(tt)
-
-
 }
