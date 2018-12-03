@@ -33,6 +33,6 @@ func main() {
 	e4 := t.AddDate(0, 12, -1).Format(DATE_FORMAT)
 	fmt.Println(s4, e4)
 
-	tt, _ := time.ParseInLocation(DATE_FORMAT, "2018-01-19", time.Local)
+	tt, _ := time.ParseInLocation(DATE_FORMAT, "2018-01-18", time.Local)
 	fmt.Println(tt)
 }
