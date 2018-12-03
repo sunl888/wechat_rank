@@ -8,5 +8,6 @@ import (
 func RegisterCommand(svr *server.Server) []cli.Command {
 	return []cli.Command{
 		NewGetCommand(svr),
+		NewRankCommand(svr),
 	}
 }

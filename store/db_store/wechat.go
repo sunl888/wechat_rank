@@ -31,7 +31,7 @@ func (w *dbWechat) WechatLoad(wechatName string) (wechat *model.Wechat, err erro
 }
 
 func (w *dbWechat) WechatCreate(wechat *model.Wechat) error {
-	return w.db.FirstOrCreate(&wechat, "wx_name = ?", wechat.WxName).Error
+	return w.db.Create(&wechat).Error
 }
 
 func NewDBWechat(db *gorm.DB) model.WechatStore {

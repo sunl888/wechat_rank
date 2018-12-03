@@ -51,6 +51,8 @@ func autoMigrate(db *gorm.DB) {
 		&model.Wechat{},
 		&model.Category{},
 		&model.Article{},
+		&model.Rank{},
+		&model.RankDetail{},
 	)
 }
 
@@ -65,8 +67,8 @@ func SetupServer() *Server {
 	s.Conf = config.LoadConfig(path.Join(pwd, "../../config/config.yml"))
 	// s.RedisClient = setupRedis(s.Conf.Redis.Address + ":" + s.Conf.Redis.Port)
 	s.DB = setupGorm(
-		//s.Debug,
-		false,
+		s.Debug,
+		//false,
 		s.Conf.DB.Driver,
 		s.Conf.DB.Host,
 		s.Conf.DB.Port,
@@ -91,6 +93,7 @@ func setupStore(s *Server) store.Store {
 		db_store.NewDBWechat(s.DB),
 		db_store.NewDBCategory(s.DB),
 		db_store.NewDBArticle(s.DB),
+		db_store.NewDBRank(s.DB),
 	)
 }
 
@@ -102,6 +105,7 @@ func setupService(serv *Server) service.Service {
 	return service.NewService(
 		service.NewWechatService(s, officialAccount),
 		service.NewCategoryService(s),
-		service.NewArticleService(s),
+		service.NewArticleService(s, officialAccount, s),
+		service.NewRankService(s, s),
 	)
 }

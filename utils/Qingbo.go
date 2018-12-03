@@ -2,10 +2,8 @@ package utils
 
 import (
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strings"
-	"time"
 )
 
 type QingboClient struct {
@@ -51,14 +49,16 @@ func (q *QingboClient) send(method, url string, params map[string]string) (strin
 		panic(err)
 	}
 	q.Signature.SignRequest(req, q)
-	//TODO log
-	log.Printf("[Time: %s] Required URL: %s\n", time.Now().Format("2006/01/02 15:04:05"), req.URL)
+	//log.Printf("[Time: %s] Required URL: %s\n", time.Now().Format("2006/01/02 15:04:05"), req.URL)
 	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 	return string(body), err
 }
