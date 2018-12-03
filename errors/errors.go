@@ -22,3 +22,15 @@ func BadRequest(msg string, err error) error {
 func Unauthorized() error {
 	return gerrors.Unauthorized(10003, ServiceName, "请先登录", nil)
 }
+
+func ErrAccountAlreadyExisted() error {
+	return gerrors.BadRequest(20001, ServiceName, "account already existed", nil)
+}
+
+func ErrPassword() error {
+	return gerrors.BadRequest(20002, ServiceName, "error password", nil)
+}
+
+func ErrAccountNotFound() error {
+	return gerrors.NotFound(20003, ServiceName, "account not found", nil)
+}

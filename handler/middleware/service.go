@@ -11,12 +11,6 @@ func SetService(c *gin.Context, s service.Service) {
 	c.Set(serviceKey, s)
 }
 
-// TODO
-/*func GetService(c *gin.Context) (s service.Service, exists bool) {
-	s, exists = c.Get(serviceKey)
-	return
-}*/
-
 func ServiceMiddleware(s service.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		SetService(c, s)

@@ -1,5 +1,7 @@
 env-var-prefix: "RANK"
 
+app_salt: "some_random_str"
+
 database:
   driver: "mysql"
   host: "127.0.0.1"
@@ -15,3 +17,7 @@ redis:
 qingbo:
   appid: ""
   appkey: ""
+
+ticket:
+  driver: "redis"
+  ttl: 3000

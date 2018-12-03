@@ -3,13 +3,17 @@ package server
 import (
 	"code.aliyun.com/zmdev/wechat_rank/config"
 	"code.aliyun.com/zmdev/wechat_rank/model"
+	"code.aliyun.com/zmdev/wechat_rank/pkg/hasher"
 	"code.aliyun.com/zmdev/wechat_rank/service"
 	"code.aliyun.com/zmdev/wechat_rank/store"
 	"code.aliyun.com/zmdev/wechat_rank/store/db_store"
+	"code.aliyun.com/zmdev/wechat_rank/store/redis_store"
 	"code.aliyun.com/zmdev/wechat_rank/utils"
 	"fmt"
+	"github.com/go-redis/redis"
 	"github.com/jinzhu/gorm"
 	"path"
+	"runtime"
 
 	// 引入数据库驱动注册及初始化
 	_ "github.com/go-sql-driver/mysql"
@@ -53,7 +57,15 @@ func autoMigrate(db *gorm.DB) {
 		&model.Article{},
 		&model.Rank{},
 		&model.RankDetail{},
+		&model.User{},
+		&model.Certificate{},
 	)
+}
+
+func setupRedis(addr string) *redis.Client {
+	return redis.NewClient(&redis.Options{
+		Addr: addr,
+	})
 }
 
 func SetupServer() *Server {
@@ -65,7 +77,7 @@ func SetupServer() *Server {
 		log.Fatalf("获取当前路径失败. ERR:%s", err.Error())
 	}
 	s.Conf = config.LoadConfig(path.Join(pwd, "../../config/config.yml"))
-	// s.RedisClient = setupRedis(s.Conf.Redis.Address + ":" + s.Conf.Redis.Port)
+	s.RedisClient = setupRedis(s.Conf.Redis.Address + ":" + s.Conf.Redis.Port)
 	s.DB = setupGorm(
 		s.Debug,
 		//false,
@@ -94,18 +106,31 @@ func setupStore(s *Server) store.Store {
 		db_store.NewDBCategory(s.DB),
 		db_store.NewDBArticle(s.DB),
 		db_store.NewDBRank(s.DB),
+		db_store.NewDBUser(s.DB),
+		redis_store.NewRedisTicket(s.RedisClient),
+		db_store.NewDBCertificate(s.DB),
 	)
 }
 
 func setupService(serv *Server) service.Service {
 	qingboClient := utils.NewQingboClient(serv.Conf.Qingbo.AppKey, serv.Conf.Qingbo.AppId)
-
 	officialAccount := utils.NewOfficialAccount(qingboClient)
 	s := setupStore(serv)
+	h := hasher.NewArgon2Hasher(
+		[]byte(serv.Conf.AppSalt),
+		3,
+		32<<10,
+		uint8(runtime.NumCPU()),
+		32,
+	)
+	tSvc := service.NewTicketService(s, time.Duration(serv.Conf.Ticket.TTL)*time.Microsecond)
 	return service.NewService(
 		service.NewWechatService(s, officialAccount),
 		service.NewCategoryService(s),
 		service.NewArticleService(s, officialAccount, s),
 		service.NewRankService(s, s),
+		tSvc,
+		service.NewUserService(s, s, tSvc, h),
+		service.NewCertificateService(s),
 	)
 }
