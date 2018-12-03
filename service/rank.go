@@ -23,9 +23,9 @@ func (r *rankService) RankCreate(rank *model.Rank) error {
 		limit  = 100
 		ranks  map[string]*model.RankDetail
 	)
-	ranks = make(map[string]*model.RankDetail, 20)
+	ranks = make(map[string]*model.RankDetail, 10)
 	for {
-		articles, _, err := r.ArticleStore.ArticleList(rank.StartDate, rank.EndDate, offset, limit)
+		articles, err := r.ArticleStore.ArticleList(rank.StartDate, rank.EndDate, offset, limit)
 		if err != nil {
 			return err
 		}

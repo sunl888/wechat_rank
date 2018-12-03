@@ -35,21 +35,20 @@ func (d *dbArticle) ArticleRank(startDate, endDate string, categoryId int64, off
 
 const DATE_FORMAT = "2006-01-02"
 
-func (d *dbArticle) ArticleList(startDate, endDate string, offset, limit int) (articles []*model.Article, count int64, err error) {
+func (d *dbArticle) ArticleList(startDate, endDate string, offset, limit int) (articles []*model.Article, err error) {
 
 	s, err := time.Parse(DATE_FORMAT, startDate)
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 	e, err := time.Parse(DATE_FORMAT, endDate)
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 	e = e.Add(time.Duration(time.Second*60*60*24 - 1))
 
 	q := d.db.Model(model.Article{}).
 		Where("published_at >=? and published_at <=?", s, e)
-	q.Count(&count)
 	articles = make([]*model.Article, 0, limit)
 	err = q.Offset(offset).Limit(limit).Find(&articles).Error
 	return

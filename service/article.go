@@ -15,8 +15,6 @@ type articleService struct {
 }
 
 // 抓取文章
-// laskWeekStartDate := "2018-11-19"
-// laskWeekEndDate := "2018-11-25"
 func (aServ *articleService) ArticleGrab(laskWeekStartDate, laskWeekEndDate string) error {
 	wechats, err := aServ.WechatStore.WechatList()
 	if err != nil {
@@ -57,9 +55,9 @@ func (aServ *articleService) ArticleGrab(laskWeekStartDate, laskWeekEndDate stri
 			index += 1
 		}
 		if (i+1)%10 == 0 {
-			// 延时1.2秒
-			time.Sleep(1200 * time.Millisecond)
-			fmt.Printf("第%d次延时\n", (i+1)/10)
+			// 延时1.3秒
+			time.Sleep(1300 * time.Millisecond)
+			//fmt.Printf("第%d次延时\n", (i+1)/10)
 		}
 	}
 	return nil

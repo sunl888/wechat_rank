@@ -21,7 +21,7 @@ type Article struct {
 
 type ArticleStore interface {
 	ArticleCreate(article *Article) error
-	ArticleList(startDate, endDate string, offset, limit int) ([]*Article, int64, error)
+	ArticleList(startDate, endDate string, offset, limit int) ([]*Article, error)
 	ArticleRank(startDate, endDate string, categoryId int64, offset, limit int) ([]*Article, int64, error)
 }
 

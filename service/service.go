@@ -88,11 +88,11 @@ func RankDetail(ctx *gin.Context, rankId, categoryId int64, limit, offset int) (
 	return nil, 0, ServiceError
 }
 
-func ArticleList(ctx *gin.Context, startDate, endDate string, limit, offset int) (articles []*model.Article, count int64, err error) {
+func ArticleList(ctx *gin.Context, startDate, endDate string, limit, offset int) (articles []*model.Article, err error) {
 	if service, ok := ctx.Value("service").(Service); ok {
 		return service.ArticleList(startDate, endDate, offset, limit)
 	}
-	return nil, 0, ServiceError
+	return nil, ServiceError
 }
 func ArticleRank(ctx *gin.Context, startDate, endDate string, categoryId int64, offset, limit int) (articles []*model.Article, count int64, err error) {
 	if service, ok := ctx.Value("service").(Service); ok {
