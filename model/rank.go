@@ -3,11 +3,11 @@ package model
 import "time"
 
 type Rank struct {
-	Id        int64 `gorm:"primary_index"`                     // ID
-	Name      string                                           // 11月26日-02日
+	Id        int64  `gorm:"primary_index"` // ID
+	Name      string // 11月26日-02日
 	Period    string `gorm:"type:enum('week','month','year')"` // 时间段
-	StartDate string                                           // 开始时间
-	EndDate   string                                           // 结束时间
+	StartDate string // 开始时间
+	EndDate   string // 结束时间
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

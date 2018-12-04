@@ -4,6 +4,7 @@ import (
 	"code.aliyun.com/zmdev/wechat_rank/model"
 	"errors"
 	"github.com/gin-gonic/gin"
+	"time"
 )
 
 type Service interface {
@@ -11,6 +12,9 @@ type Service interface {
 	model.CategoryService
 	model.ArticleService
 	model.RankService
+	model.UserService
+	model.TicketService
+	model.CertificateService
 }
 
 type service struct {
@@ -18,6 +22,9 @@ type service struct {
 	model.CategoryService
 	model.ArticleService
 	model.RankService
+	model.UserService
+	model.TicketService
+	model.CertificateService
 }
 
 //ServiceError
@@ -94,12 +101,77 @@ func ArticleList(ctx *gin.Context, startDate, endDate string, limit, offset int)
 	}
 	return nil, ServiceError
 }
+
 func ArticleRank(ctx *gin.Context, startDate, endDate string, categoryId int64, offset, limit int) (articles []*model.Article, count int64, err error) {
 	if service, ok := ctx.Value("service").(Service); ok {
 		return service.ArticleRank(startDate, endDate, categoryId, offset, limit)
 	}
 	return nil, 0, ServiceError
 }
-func NewService(wSvc model.WechatService, cSvc model.CategoryService, aSvc model.ArticleService, rSvc model.RankService) Service {
-	return &service{wSvc, cSvc, aSvc, rSvc}
+
+func TicketIsValid(ctx *gin.Context, ticketId string) (isValid bool, userId int64, err error) {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.TicketIsValid(ticketId)
+	}
+	return false, 0, ServiceError
+}
+
+func TicketGen(ctx *gin.Context, userId int64) (*model.Ticket, error) {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.TicketGen(userId)
+	}
+	return nil, ServiceError
+}
+
+func TicketDestroy(ctx *gin.Context, ticketId string) error {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.TicketDestroy(ticketId)
+	}
+	return ServiceError
+}
+
+func TicketTTL(ctx *gin.Context) time.Duration {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.TicketTTL()
+	}
+	return 0
+}
+
+func UserLogin(ctx *gin.Context, account, password string) (*model.Ticket, error) {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.UserLogin(account, password)
+	}
+	return nil, ServiceError
+}
+
+func UserRegister(ctx *gin.Context, account string, certificateType model.CertificateType, password string) (userId int64, err error) {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.UserRegister(account, certificateType, password)
+	}
+	return 0, ServiceError
+}
+
+func UserUpdatePassword(ctx *gin.Context, userId int64, newPassword string) error {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.UserUpdatePassword(userId, newPassword)
+	}
+	return nil
+}
+
+func CertificateUpdate(ctx *gin.Context, oldAccount, newAccount string, certificateType model.CertificateType) error {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.CertificateUpdate(oldAccount, newAccount, certificateType)
+	}
+	return nil
+}
+
+func NewService(
+	wSvc model.WechatService,
+	cSvc model.CategoryService,
+	aSvc model.ArticleService,
+	rSvc model.RankService,
+	tSvc model.TicketService,
+	uSvc model.UserService,
+	ccSvc model.CertificateService) Service {
+	return &service{wSvc, cSvc, aSvc, rSvc, uSvc, tSvc, ccSvc}
 }

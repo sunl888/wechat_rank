@@ -2,10 +2,10 @@ package server
 
 import (
 	"code.aliyun.com/zmdev/wechat_rank/config"
+	"code.aliyun.com/zmdev/wechat_rank/service"
 	"github.com/go-redis/redis"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
-	"code.aliyun.com/zmdev/wechat_rank/service"
 )
 
 type Server struct {

@@ -26,11 +26,17 @@ type QingboConfig struct {
 	AppId  string
 	AppKey string
 }
+type TicketConfig struct {
+	Driver string `json:"driver"` // ticket 使用的驱动 只支持 redis 和 database
+	TTL    int64  `json:"ttl"`    // ticket 的过期时间 （毫秒）
+}
 type Config struct {
 	EnvVarPrefix string         `json:"env-var-prefix"`
+	AppSalt      string         `json:"app_salt"`
 	DB           DatabaseConfig `json:"database"`
 	Redis        RedisConfig    `json:"redis"`
 	Qingbo       QingboConfig   `json:"qingbo"`
+	Ticket       TicketConfig   `json:"ticket"`
 }
 
 func LoadConfig(path string) Config {

@@ -7,6 +7,9 @@ type Store interface {
 	model.CategoryStore
 	model.ArticleStore
 	model.RankStore
+	model.UserStore
+	model.TicketStore
+	model.CertificateStore
 }
 
 type store struct {
@@ -14,8 +17,18 @@ type store struct {
 	model.CategoryStore
 	model.ArticleStore
 	model.RankStore
+	model.UserStore
+	model.TicketStore
+	model.CertificateStore
 }
 
-func NewStore(ws model.WechatStore, cs model.CategoryStore, as model.ArticleStore, rs model.RankStore) Store {
-	return &store{ws, cs, as, rs}
+func NewStore(
+	ws model.WechatStore,
+	cs model.CategoryStore,
+	as model.ArticleStore,
+	rs model.RankStore,
+	us model.UserStore,
+	ts model.TicketStore,
+	ccs model.CertificateStore) Store {
+	return &store{ws, cs, as, rs, us, ts, ccs}
 }
