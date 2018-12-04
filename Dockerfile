@@ -12,7 +12,7 @@ COPY --from=builder /go/src/code.aliyun.com/zmdev/wechat_rank/server_app /app/se
 COPY --from=builder /go/src/code.aliyun.com/zmdev/wechat_rank/cli_app /app/cli
 COPY --from=builder /go/src/code.aliyun.com/zmdev/wechat_rank/config/config.yml /app/config/config.yml
 COPY --from=builder /go/src/code.aliyun.com/zmdev/wechat_rank/crontabs /var/spool/cron/crontabs/root
-COPY --from=builder /go/src/code.aliyun.com/zmdev/wechat_rank/.env.example /app/.env
+COPY --from=builder /go/src/code.aliyun.com/zmdev/wechat_rank/.env.docker.example /app/.env
 
 EXPOSE 8080
 
