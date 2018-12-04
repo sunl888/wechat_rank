@@ -2,6 +2,7 @@ package command
 
 import (
 	"code.aliyun.com/zmdev/wechat_rank/server"
+	"fmt"
 	"github.com/urfave/cli"
 	"go.uber.org/zap"
 )
@@ -23,6 +24,7 @@ func NewGetCommand(svr *server.Server) cli.Command {
 			//}
 			//laskWeekStartDate := now.AddDate(0, 0, -7).Format(DATE_FORMAT)
 			//laskWeekEndDate := now.AddDate(0, 0, -1).Format(DATE_FORMAT)
+			fmt.Println("hello")
 			// TODO date
 			laskWeekStartDate := "2018-11-25"
 			laskWeekEndDate := "2018-12-01"
