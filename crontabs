@@ -1,0 +1,12 @@
+# 每周1早上3点
+0 0 3 ? * MON cd HOME && /app/cli get >> /app/cron.log 2>&1
+# 每周1早上4点
+0 0 4 ? * MON cd HOME && /app/cli rank --type=week >> /app/cron.log 2>&1
+# 每个月1号早上4:30
+0 30 4 1 * ? cd HOME && /app/cli rank --type=month >> /app/cron.log 2>&1
+# 每年1月1日早上4:40
+0 40 4 1 1 ? cd HOME && /app/cli rank --type=year >> /app/cron.log 2>&1
+
+* * * * * cd /app && ./cli get >> /app/cron.log 2>&1
+
+* * * * * cd $(PWD) && echo $(pwd) >> /app/test.log

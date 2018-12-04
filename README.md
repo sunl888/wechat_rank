@@ -1,6 +1,8 @@
 ## 微信排名
 对公众号进行多维度计算排名
 
-[Tips] 
- - 特殊账号不建议参与排名,如:人民日报,央视新闻等每天发布的头条最少11个,共计最少11*8篇新闻的账号
- - 普通账号每天最多可以发送1个头条,共计8篇文章(建议6天抓取一次文章)
+go run cmd/server/main.go
+
+## docker 
+  * ~~docker run -d --network app_net -p 8080:8080 --env-file ".env" wechat_rank:latest~~
+  * docker run -d --network app_net -p 8080:8080  wechat_rank:latest

@@ -29,7 +29,7 @@ func (tSvc *ticketService) TicketIsValid(ticketId string) (isValid bool, userId 
 }
 
 func (tSvc *ticketService) TicketGen(userId int64) (*model.Ticket, error) {
-	u4, _ := uuid.NewV4()
+	u4 := uuid.NewV4()
 	now := time.Now().UTC()
 	ticket := &model.Ticket{
 		Id:        hex.EncodeToString(u4.Bytes()),
