@@ -3,6 +3,7 @@ package command
 import (
 	"code.aliyun.com/zmdev/wechat_rank/model"
 	"code.aliyun.com/zmdev/wechat_rank/server"
+	"fmt"
 	"github.com/urfave/cli"
 	"time"
 )
@@ -29,15 +30,15 @@ func NewRankCommand(svr *server.Server) cli.Command {
 			case "week":
 				// 上周一到上周日
 				// TODO date
-				//now := time.Now()
-				//if now.Weekday() == time.Monday {
-				//	startDate = now.AddDate(0, 0, -7).Format(DATE_FORMAT)
-				//	endDate = now.AddDate(0, 0, -1).Format(DATE_FORMAT)
-				//} else {
-				//	return cli.NewExitError(fmt.Sprintf("日期不正确,type:%s,startDate:%s,endDate:%s\n", c.String("type"), startDate, endDate), 1)
-				//}
-				startDate = "2018-11-25"
-				endDate = "2018-12-01"
+				now := time.Now()
+				if now.Weekday() == time.Monday {
+					startDate = now.AddDate(0, 0, -7).Format(DATE_FORMAT)
+					endDate = now.AddDate(0, 0, -1).Format(DATE_FORMAT)
+				} else {
+					return cli.NewExitError(fmt.Sprintf("日期不正确,type:%s,startDate:%s,endDate:%s\n", c.String("type"), startDate, endDate), 1)
+				}
+				//startDate = "2018-11-25"
+				//endDate = "2018-12-01"
 			case "month":
 				year, month, _ := time.Now().Date()
 				thisMonth := time.Date(year, month, 1, 0, 0, 0, 0, time.Local)
