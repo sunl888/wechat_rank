@@ -4,6 +4,7 @@ import (
 	"code.aliyun.com/zmdev/wechat_rank/model"
 	"code.aliyun.com/zmdev/wechat_rank/utils"
 	"fmt"
+	"github.com/emirpasic/gods/sets/hashset"
 	"github.com/pkg/errors"
 	"time"
 )
@@ -24,7 +25,9 @@ func (aServ *articleService) ArticleGrab(laskWeekStartDate, laskWeekEndDate stri
 	}
 	// 获取每个公众号最近的文章列表
 	for i, w := range wechats {
+		ids := hashset.New()
 		index := 1
+	A:
 		for {
 			articleResp, err := aServ.OfficialAccount.GetArticles(w.WxName, laskWeekStartDate, laskWeekEndDate, 50, index)
 			if err != nil {
@@ -32,6 +35,13 @@ func (aServ *articleService) ArticleGrab(laskWeekStartDate, laskWeekEndDate stri
 			}
 			// 保存文章
 			for _, a := range articleResp {
+				if ids.Contains(a.Id) {
+					// 有些公众号获取到的都是重复文章  不得不这样写...
+					// Tip: 清博大数据Api是史上最垃圾的Api
+					break A
+				} else {
+					ids.Add(a.Id)
+				}
 				var publishedAt time.Time
 				publishedAt, _ = time.Parse(DateFormat, a.CreatedAt)
 				err := aServ.ArticleStore.ArticleCreate(&model.Article{
@@ -55,11 +65,12 @@ func (aServ *articleService) ArticleGrab(laskWeekStartDate, laskWeekEndDate stri
 				break
 			}
 			index += 1
+			if (index-1)%10 == 0 {
+				time.Sleep(1300 * time.Millisecond)
+			}
 		}
 		if (i+1)%10 == 0 {
-			// 延时1.3秒
 			time.Sleep(1300 * time.Millisecond)
-			//fmt.Printf("第%d次延时\n", (i+1)/10)
 		}
 	}
 	return nil
