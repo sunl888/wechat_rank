@@ -5,6 +5,7 @@ import (
 	"code.aliyun.com/zmdev/wechat_rank/model"
 	"code.aliyun.com/zmdev/wechat_rank/service"
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 	"strconv"
 	"time"
 )
@@ -87,9 +88,23 @@ func (*Category) Show(ctx *gin.Context) {
 }
 
 func (c *Category) Delete(ctx *gin.Context) {
+	var err error
 	cId, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
 		_ = ctx.Error(errors.BadRequest("id 格式不正确", nil))
+		return
+	}
+	_, err = service.CategoryLoad(ctx, cId)
+	if err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			err = errors.BadRequest("分类不存在", nil)
+		}
+		_ = ctx.Error(err)
+		return
+	}
+	_, count, err := service.WechatListByCategory(ctx, cId, 1, 0)
+	if count > 0 {
+		_ = ctx.Error(errors.BadRequest("该分类下有公众号,不能删除", nil))
 		return
 	}
 	err = service.CategoryDelete(ctx, cId)

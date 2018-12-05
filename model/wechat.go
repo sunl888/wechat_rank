@@ -8,6 +8,7 @@ type Wechat struct {
 	VerifyName string    `json:"verify_name"`
 	WxName     string    `gorm:"unique_index" json:"wx_name"`
 	WxNote     string    `gorm:"type:varchar(255)" json:"wx_note"`
+	WxNickname string    `json:"wx_nickname"`
 	WxLogo     string    `gorm:"type:varchar(255)" json:"wx_logo"`
 	WxVip      string    `json:"wx_vip"`
 	WxQrcode   string    `json:"wx_qrcode"`

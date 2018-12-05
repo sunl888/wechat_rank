@@ -14,6 +14,8 @@ type articleService struct {
 	*utils.OfficialAccount
 }
 
+const DateFormat = "2006-01-02 15:04:05"
+
 // 抓取文章
 func (aServ *articleService) ArticleGrab(laskWeekStartDate, laskWeekEndDate string) error {
 	wechats, _, err := aServ.WechatStore.WechatList(0, 0)
@@ -31,7 +33,7 @@ func (aServ *articleService) ArticleGrab(laskWeekStartDate, laskWeekEndDate stri
 			// 保存文章
 			for _, a := range articleResp {
 				var publishedAt time.Time
-				publishedAt, _ = time.Parse("2006-01-02 15:04:05", a.CreatedAt)
+				publishedAt, _ = time.Parse(DateFormat, a.CreatedAt)
 				err := aServ.ArticleStore.ArticleCreate(&model.Article{
 					WxId:         w.Id,
 					Top:          a.Top,

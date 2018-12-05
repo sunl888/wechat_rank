@@ -16,22 +16,22 @@ type OfficialAccount struct {
 }
 
 type AccountData struct {
-	VerifyName    string   `json:"verify_name"`
-	WxName        string   `json:"wx_name"`
-	AddTime       string   `json:"add_time"`
-	WxVip         string   `json:"wx_vip"`
-	WxNote        string   `json:"wx_note"`
-	WxLogo        string   `json:"wx_logo"`
-	Wci           float64  `json:"wci,omitempty"`
-	WxNickname    string   `json:"wx_nickname,omitempty"`
-	NicknameId    string   `json:"nickname_id"`
-	WxQrcode      string   `json:"wx_qrcode"`
-	WxBiz         string   `json:"wx_biz"`
-	WxAccountTags []string `json:"wx_account_tags,omitempty"`
+	VerifyName string `json:"verify_name"`
+	WxName     string `json:"wx_name"`
+	AddTime    string `json:"add_time"`
+	WxVip      string `json:"wx_vip"`
+	WxNote     string `json:"wx_note"`
+	WxLogo     string `json:"wx_logo"`
+	WxQrcode   string `json:"wx_qrcode"`
+	//Wci           float64  `json:"wci,omitempty"`
+	//WxNickname    string   `json:"wx_nickname,omitempty"`
+	//NicknameId    string   `json:"nickname_id"`
+	//WxBiz         string   `json:"wx_biz"`
+	//WxAccountTags []string `json:"wx_account_tags,omitempty"`
 }
 
 type AccountResponse struct {
-	DataResp    []*AccountData `json:"data"`
+	Data        []*AccountData `json:"data"`
 	Url         string         `json:"url"`
 	Application string         `json:"application"`
 }
@@ -45,6 +45,16 @@ type ArticleResponse struct {
 	ReadCount int64  `json:"read_count"` // 阅读数
 	LikeCount int64  `json:"like_count"` // 点赞数
 	CreatedAt string `json:"created_at"` // 发布时间
+}
+
+type RankDay struct {
+	WxNickname string `json:"wx_nickname"`
+}
+
+type RankDayResponse struct {
+	Data        []*RankDay `json:"data"`
+	Url         string     `json:"url"`
+	Application string     `json:"application"`
 }
 
 func (a *OfficialAccount) GetAccount(accountName string) (*AccountResponse, error) {
@@ -93,6 +103,27 @@ func (a *OfficialAccount) GetArticles(wxName, startDate, endDate string, perPage
 		return nil, err
 	}
 	return articlesResp.Data, nil
+}
+
+//http://api.gsdata.cn/weixin/v1/users/rank-days
+func (a *OfficialAccount) GetRankDays(wxName, startDate string) (*RankDayResponse, error) {
+	sb := strings.Builder{}
+	if wxName != "" {
+		sb.WriteString("wx_name=" + wxName)
+	}
+	if startDate != "" {
+		sb.WriteString("&start_date=" + startDate)
+	}
+	resp, err := a.QingboClient.get("users/rank-days", sb.String(), "weixin")
+	if err != nil {
+		return nil, err
+	}
+	rankDayResp := &RankDayResponse{}
+	err = json.Unmarshal([]byte(resp), rankDayResp)
+	if err != nil {
+		return nil, err
+	}
+	return rankDayResp, nil
 }
 
 func NewOfficialAccount(client *QingboClient) *OfficialAccount {

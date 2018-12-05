@@ -9,10 +9,8 @@ import (
 	"strconv"
 )
 
-type Wechat struct{}
-
-/*type WechatResp struct {
-}*/
+type Wechat struct {
+}
 
 func (w *Wechat) ListByCategory(ctx *gin.Context) {
 	cId, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
@@ -69,14 +67,16 @@ func (w *Wechat) Create(ctx *gin.Context) {
 		_ = ctx.Error(err)
 		return
 	}
-	err := service.WechatCreate(ctx, &model.Wechat{
+	wechat := model.Wechat{
 		WxName:     l.WxName,
 		CategoryId: l.CategoryId,
-	})
+	}
+	err := service.WechatCreate(ctx, &wechat)
 	if err != nil {
 		_ = ctx.Error(err)
 		return
 	}
+	ctx.JSON(200, wechat)
 }
 
 func NewWechat() *Wechat {

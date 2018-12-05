@@ -24,7 +24,9 @@ func CreateHTTPHandler(svr *server.Server) http.Handler {
 	router := gin.Default()
 	router.Use(middleware.ServiceMiddleware(svr.Service))
 	authRouter := router.Group("/auth")
+	// 登录
 	authRouter.POST("/login", authHandler.Login)
+	// 注册
 	authRouter.POST("/register", authHandler.Register)
 
 	authorized := router.Group("/")
@@ -33,16 +35,22 @@ func CreateHTTPHandler(svr *server.Server) http.Handler {
 		authorized.GET("/logout", authHandler.Logout)
 		// 添加公众号
 		authorized.POST("/wechat", wechatHandler.Create)
+		// 删除公众号
 		authorized.DELETE("/wechat/:id", wechatHandler.Delete)
 		// 创建分类
 		authorized.POST("/category", categoryHandler.Create)
+		// 删除分类
 		authorized.DELETE("/category/:id", categoryHandler.Delete)
+		// 更新分类
 		authorized.PUT("/category/:id", categoryHandler.Update)
 	}
+	// 公众号列表
 	router.GET("/wechat", wechatHandler.List)
-
+	// 分类下的公众号列表
 	router.GET("/category/:id/wechat", wechatHandler.ListByCategory)
+	// 分类列表
 	router.GET("/category", categoryHandler.List)
+	// 分类详情
 	router.GET("/category/:id", categoryHandler.Show)
 	// 获取日期
 	router.GET("/rank/date", rankHandler.RankList)
