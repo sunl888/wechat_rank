@@ -25,14 +25,13 @@ func (w *wechatService) WechatCreate(wechat *model.Wechat) error {
 				return errors.BadRequest("公众号不存在", nil)
 			}
 			wechatData := wechatResp.Data[0]
-
 			lastDate := time.Now().AddDate(0, 0, -1).Format(DATE_FORMAT)
 			rankDay, err := w.client.GetRankDays(wechat.WxName, lastDate)
 			if err != nil {
 				return err
 			}
 			nickname := ""
-			if rankDay.Data[0] != nil {
+			if len(rankDay.Data) > 0 {
 				nickname = rankDay.Data[0].WxNickname
 			}
 			convert2WechatModel(wechatData, wechat, nickname)

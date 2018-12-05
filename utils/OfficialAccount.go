@@ -1,14 +1,15 @@
 package utils
 
 import (
+	"code.aliyun.com/zmdev/wechat_rank/errors"
 	"encoding/json"
 	"strconv"
 	"strings"
 )
 
 var (
-	DefaultPage    = 1  // 获取哪页的文章
-	DefaultPerPage = 50 // 每页显示多少文章
+	Page    = 1
+	PerPage = 50
 )
 
 type OfficialAccount struct {
@@ -23,11 +24,6 @@ type AccountData struct {
 	WxNote     string `json:"wx_note"`
 	WxLogo     string `json:"wx_logo"`
 	WxQrcode   string `json:"wx_qrcode"`
-	//Wci           float64  `json:"wci,omitempty"`
-	//WxNickname    string   `json:"wx_nickname,omitempty"`
-	//NicknameId    string   `json:"nickname_id"`
-	//WxBiz         string   `json:"wx_biz"`
-	//WxAccountTags []string `json:"wx_account_tags,omitempty"`
 }
 
 type AccountResponse struct {
@@ -57,6 +53,13 @@ type RankDayResponse struct {
 	Application string     `json:"application"`
 }
 
+type ErrorResponse struct {
+	Name    string
+	Message string
+	Code    int
+	Status  int
+}
+
 func (a *OfficialAccount) GetAccount(accountName string) (*AccountResponse, error) {
 	resp, err := a.QingboClient.get("users", "wx_name="+accountName, "weixin")
 	if err != nil {
@@ -67,6 +70,14 @@ func (a *OfficialAccount) GetAccount(accountName string) (*AccountResponse, erro
 	if err != nil {
 		return nil, err
 	}
+	if wechatResp.Data == nil {
+		errorResp := &ErrorResponse{}
+		err = json.Unmarshal([]byte(resp), errorResp)
+		if err != nil {
+			return nil, err
+		}
+		return nil, errors.QingboError(errorResp.Name, errorResp.Message, errorResp.Code, errorResp.Status)
+	}
 	return wechatResp, nil
 }
 
@@ -74,6 +85,8 @@ func (a *OfficialAccount) GetArticles(wxName, startDate, endDate string, perPage
 	sb := strings.Builder{}
 	if wxName != "" {
 		sb.WriteString("wx_name=" + wxName)
+	} else {
+		return nil, errors.QingboError("", "wx_name 不能为空", 400, 400)
 	}
 	if startDate != "" {
 		sb.WriteString("&start_date=" + startDate)
@@ -84,12 +97,12 @@ func (a *OfficialAccount) GetArticles(wxName, startDate, endDate string, perPage
 	if perPage > 0 {
 		sb.WriteString("&per-page=" + strconv.Itoa(perPage))
 	} else {
-		sb.WriteString("&per-page=" + strconv.Itoa(DefaultPerPage))
+		sb.WriteString("&per-page=" + strconv.Itoa(PerPage))
 	}
 	if page > 0 {
 		sb.WriteString("&page=" + strconv.Itoa(page))
 	} else {
-		sb.WriteString("&page=" + strconv.Itoa(DefaultPage))
+		sb.WriteString("&page=" + strconv.Itoa(Page))
 	}
 	resp, err := a.QingboClient.get("articles", sb.String(), "weixin")
 	if err != nil {
@@ -101,6 +114,14 @@ func (a *OfficialAccount) GetArticles(wxName, startDate, endDate string, perPage
 	err = json.Unmarshal([]byte(resp), articlesResp)
 	if err != nil {
 		return nil, err
+	}
+	if articlesResp.Data == nil {
+		errorResp := &ErrorResponse{}
+		err = json.Unmarshal([]byte(resp), errorResp)
+		if err != nil {
+			return nil, err
+		}
+		return nil, errors.QingboError(errorResp.Name, errorResp.Message, errorResp.Code, errorResp.Status)
 	}
 	return articlesResp.Data, nil
 }
@@ -122,6 +143,14 @@ func (a *OfficialAccount) GetRankDays(wxName, startDate string) (*RankDayRespons
 	err = json.Unmarshal([]byte(resp), rankDayResp)
 	if err != nil {
 		return nil, err
+	}
+	if rankDayResp.Data == nil {
+		errorResp := &ErrorResponse{}
+		err = json.Unmarshal([]byte(resp), errorResp)
+		if err != nil {
+			return nil, err
+		}
+		return nil, errors.QingboError(errorResp.Name, errorResp.Message, errorResp.Code, errorResp.Status)
 	}
 	return rankDayResp, nil
 }

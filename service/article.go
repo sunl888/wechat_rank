@@ -16,62 +16,52 @@ type articleService struct {
 }
 
 const DateFormat = "2006-01-02 15:04:05"
+const perPage = 50
 
 // 抓取文章
-func (aServ *articleService) ArticleGrab(laskWeekStartDate, laskWeekEndDate string) error {
-	wechats, _, err := aServ.WechatStore.WechatList(0, 0)
-	if err != nil {
-		return err
-	}
+func (aServ *articleService) ArticleGrab(wechat *model.Wechat, laskWeekStartDate, laskWeekEndDate string) error {
 	// 获取每个公众号最近的文章列表
-	for i, w := range wechats {
-		ids := hashset.New()
-		index := 1
-	A:
-		for {
-			articleResp, err := aServ.OfficialAccount.GetArticles(w.WxName, laskWeekStartDate, laskWeekEndDate, 50, index)
+	articleIds := hashset.New()
+	page := 1
+	for {
+		articles, err := aServ.OfficialAccount.GetArticles(wechat.WxName, laskWeekStartDate, laskWeekEndDate, perPage, page)
+		if err != nil {
+			return errors.New(fmt.Sprintf("获取文章失败: %+v\n", err.Error()))
+		}
+		// 保存文章
+		for _, article := range articles {
+			// 有些公众号获取到的都是重复文章  不得不这样写...
+			// Tip: 清博大数据Api是史上最垃圾的Api
+			if articleIds.Contains(article.Id) {
+				return nil
+			} else {
+				articleIds.Add(article.Id)
+			}
+			publishedAt, _ := time.Parse(DateFormat, article.CreatedAt)
+			err := aServ.ArticleStore.ArticleCreate(&model.Article{
+				WxId:         wechat.Id,
+				Top:          article.Top,
+				Url:          article.Url,
+				Title:        article.Title,
+				WxName:       article.WxName,
+				ArticleId:    article.Id,
+				ReadCount:    article.ReadCount,
+				LikeCount:    article.LikeCount,
+				PublishedAt:  &publishedAt,
+				WxVerifyName: wechat.VerifyName,
+				WxCategoryId: wechat.CategoryId,
+			})
 			if err != nil {
-				return errors.New(fmt.Sprintf("获取文章失败: %+v\n", err.Error()))
-			}
-			// 保存文章
-			for _, a := range articleResp {
-				if ids.Contains(a.Id) {
-					// 有些公众号获取到的都是重复文章  不得不这样写...
-					// Tip: 清博大数据Api是史上最垃圾的Api
-					break A
-				} else {
-					ids.Add(a.Id)
-				}
-				var publishedAt time.Time
-				publishedAt, _ = time.Parse(DateFormat, a.CreatedAt)
-				err := aServ.ArticleStore.ArticleCreate(&model.Article{
-					WxId:         w.Id,
-					Top:          a.Top,
-					Url:          a.Url,
-					Title:        a.Title,
-					WxName:       a.WxName,
-					ArticleId:    a.Id,
-					ReadCount:    a.ReadCount,
-					LikeCount:    a.LikeCount,
-					PublishedAt:  &publishedAt,
-					WxVerifyName: w.VerifyName,
-					WxCategoryId: w.CategoryId,
-				})
-				if err != nil {
-					return errors.New(fmt.Sprintf("保存文章失败: %+v\n", err.Error()))
-				}
-			}
-			if len(articleResp) < 50 {
-				break
-			}
-			index += 1
-			if (index-1)%10 == 0 {
-				time.Sleep(1300 * time.Millisecond)
+				return errors.New(fmt.Sprintf("保存文章失败: %+v\n", err.Error()))
 			}
 		}
-		if (i+1)%10 == 0 {
+		if len(articles) < perPage {
+			break
+		}
+		if page%10 == 0 {
 			time.Sleep(1300 * time.Millisecond)
 		}
+		page++
 	}
 	return nil
 }

@@ -28,5 +28,5 @@ type ArticleStore interface {
 
 type ArticleService interface {
 	ArticleStore
-	ArticleGrab(laskWeekStartDate, laskWeekEndDate string) error
+	ArticleGrab(wechat *Wechat, laskWeekStartDate, laskWeekEndDate string) error
 }

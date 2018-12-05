@@ -3,6 +3,7 @@ package command
 import (
 	"code.aliyun.com/zmdev/wechat_rank/model"
 	"code.aliyun.com/zmdev/wechat_rank/server"
+	"fmt"
 	"github.com/urfave/cli"
 	"time"
 )
@@ -51,15 +52,21 @@ func NewRankCommand(svr *server.Server) cli.Command {
 			default:
 				return cli.NewExitError("类型错误", 2)
 			}
-			err := service.RankCreate(&model.Rank{
-				Name:      startDate + "~" + endDate,
-				Period:    c.String("type"),
-				StartDate: startDate,
-				EndDate:   endDate,
-			})
+			wechats, count, err := service.WechatList(0, 0)
 			if err != nil {
-				log.Error("创建排名出错")
+				log.Error(fmt.Sprintf("创建排名出错: %+v", err.Error()))
 				return cli.NewExitError(err, 3)
+			}
+			for i := 0; i < int(count); i++ {
+				err = service.Rank(wechats[i], &model.Rank{
+					Period:    c.String("type"),
+					StartDate: startDate,
+					EndDate:   endDate,
+				})
+				if err != nil {
+					log.Error(fmt.Sprintf("创建排名出错: %+v", err.Error()))
+					return cli.NewExitError(err, 4)
+				}
 			}
 			return nil
 		},

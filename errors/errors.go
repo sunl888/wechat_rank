@@ -11,6 +11,11 @@ func BindError(err error) error {
 	return gerrors.BadRequest(10000, ServiceName, err.Error(), err)
 }
 
+// 清博大数据Api error
+func QingboError(name, msg string, code, status int) error {
+	return gerrors.New(code, ServiceName, msg, "", status)
+}
+
 func InternalServerError(msg string, err error) error {
 	return gerrors.InternalServerError(10001, ServiceName, msg, err)
 }

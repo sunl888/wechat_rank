@@ -93,14 +93,12 @@ func RankList(ctx *gin.Context, period string) (ranks []*model.Rank, err error) 
 	}
 	return nil, ServiceError
 }
-
 func RankLoad(ctx *gin.Context, rankId int64) (rank *model.Rank, err error) {
 	if service, ok := ctx.Value("service").(Service); ok {
 		return service.RankLoad(rankId)
 	}
 	return nil, ServiceError
 }
-
 func RankDetail(ctx *gin.Context, rankId, categoryId int64, limit, offset int) (ranks []*model.RankJoinWechat, count int64, err error) {
 	if service, ok := ctx.Value("service").(Service); ok {
 		return service.RankDetail(rankId, categoryId, limit, offset)

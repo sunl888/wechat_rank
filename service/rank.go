@@ -14,49 +14,48 @@ type rankService struct {
 
 const DATE_FORMAT = "2006-01-02"
 
-func (r *rankService) RankCreate(rank *model.Rank) error {
-	err := r.RankStore.RankCreate(rank)
+func (r *rankService) Rank(wechat *model.Wechat, rank *model.Rank) error {
+	var (
+		err   error
+		ranks map[string]*model.RankDetail
+	)
+	rank.Name = rank.StartDate + "~" + rank.EndDate
+	err = r.RankStore.RankCreate(rank)
 	if err != nil {
 		return err
 	}
-	var (
-		ranks map[string]*model.RankDetail
-	)
 	ranks = make(map[string]*model.RankDetail, 10)
-	wechats, count, err := r.WechatStore.WechatList(0, 0)
-	for i := 0; i < int(count); i++ {
-		articles, err := r.ArticleStore.ArticleListByWxId(rank.StartDate, rank.EndDate, wechats[i].Id)
-		if err != nil {
-			return err
+	articles, err := r.ArticleStore.ArticleListByWxId(rank.StartDate, rank.EndDate, wechat.Id)
+	if err != nil {
+		return err
+	}
+	// 基础信息
+	if ranks[wechat.WxName] == nil {
+		ranks[wechat.WxName] = new(model.RankDetail)
+		ranks[wechat.WxName].WxId = wechat.Id
+	}
+	for _, article := range articles {
+		// 总文章数
+		ranks[article.WxName].ArticleCount++
+		// 单篇文章最高阅读数
+		if article.ReadCount > ranks[article.WxName].MaxReadCount {
+			ranks[article.WxName].MaxReadCount = article.ReadCount
 		}
-		// 基础信息
-		if ranks[wechats[i].WxName] == nil {
-			ranks[wechats[i].WxName] = new(model.RankDetail)
-			ranks[wechats[i].WxName].WxId = wechats[i].Id
+		// 单篇文章最高点赞数
+		if article.LikeCount > ranks[article.WxName].MaxLikeCount {
+			ranks[article.WxName].MaxLikeCount = article.LikeCount
 		}
-		for _, article := range articles {
-			// 总文章数
-			ranks[article.WxName].ArticleCount++
-			// 单篇文章最高阅读数
-			if article.ReadCount > ranks[article.WxName].MaxReadCount {
-				ranks[article.WxName].MaxReadCount = article.ReadCount
-			}
-			// 单篇文章最高点赞数
-			if article.LikeCount > ranks[article.WxName].MaxLikeCount {
-				ranks[article.WxName].MaxLikeCount = article.LikeCount
-			}
-			// 所有文章阅读数
-			ranks[article.WxName].ReadCount += article.ReadCount
-			// 所有文章点赞数
-			ranks[article.WxName].LikeCount += article.LikeCount
-			if article.Top == 1 {
-				// 头条文章数量
-				ranks[article.WxName].TopCount++
-				// 头条文章阅读数
-				ranks[article.WxName].TopReadCount += article.ReadCount
-				// 头条文章点赞数
-				ranks[article.WxName].TopLikeCount += article.LikeCount
-			}
+		// 所有文章阅读数
+		ranks[article.WxName].ReadCount += article.ReadCount
+		// 所有文章点赞数
+		ranks[article.WxName].LikeCount += article.LikeCount
+		if article.Top == 1 {
+			// 头条文章数量
+			ranks[article.WxName].TopCount++
+			// 头条文章阅读数
+			ranks[article.WxName].TopReadCount += article.ReadCount
+			// 头条文章点赞数
+			ranks[article.WxName].TopLikeCount += article.LikeCount
 		}
 	}
 	// 计算每个公众号的周期内平均阅读数
