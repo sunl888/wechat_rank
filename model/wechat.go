@@ -4,23 +4,25 @@ import "time"
 
 // 公众号
 type Wechat struct {
-	Id         int64 `gorm:"primary_key"`
-	VerifyName string
-	WxName     string `gorm:"unique_index"`
-	WxNote     string `gorm:"type:varchar(255)"`
-	WxLogo     string `gorm:"type:varchar(255)"`
-	WxVip      string
-	WxQrcode   string
-	CategoryId int64
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
+	Id         int64     `gorm:"primary_key" json:"id"`
+	VerifyName string    `json:"verify_name"`
+	WxName     string    `gorm:"unique_index" json:"wx_name"`
+	WxNote     string    `gorm:"type:varchar(255)" json:"wx_note"`
+	WxLogo     string    `gorm:"type:varchar(255)" json:"wx_logo"`
+	WxVip      string    `json:"wx_vip"`
+	WxQrcode   string    `json:"wx_qrcode"`
+	CategoryId int64     `json:"category_id"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 type WechatStore interface {
 	WechatLoad(wechatName string) (wechat *Wechat, err error)
-	WechatList() (wechats []*Wechat, err error)
+	WechatList(limit, offset int) (wechats []*Wechat, count int64, err error)
 	WechatCreate(wechat *Wechat) error
 	WechatUpdate(wechat *Wechat) error
+	WechatListByCategory(cId int64, limit, offset int) (wechats []*Wechat, count int64, err error)
+	WechatDelete(id int64) error
 }
 
 type WechatService interface {

@@ -33,12 +33,15 @@ func CreateHTTPHandler(svr *server.Server) http.Handler {
 		authorized.GET("/logout", authHandler.Logout)
 		// 添加公众号
 		authorized.POST("/wechat", wechatHandler.Create)
+		authorized.DELETE("/wechat/:id", wechatHandler.Delete)
 		// 创建分类
 		authorized.POST("/category", categoryHandler.Create)
 		authorized.DELETE("/category/:id", categoryHandler.Delete)
 		authorized.PUT("/category/:id", categoryHandler.Update)
 	}
+	router.GET("/wechat", wechatHandler.List)
 
+	router.GET("/category/:id/wechat", wechatHandler.ListByCategory)
 	router.GET("/category", categoryHandler.List)
 	router.GET("/category/:id", categoryHandler.Show)
 	// 获取日期

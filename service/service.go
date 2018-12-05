@@ -36,11 +36,24 @@ func WechatCreate(ctx *gin.Context, wechat *model.Wechat) error {
 	}
 	return ServiceError
 }
-func WechatList(ctx *gin.Context) (wechats []*model.Wechat, err error) {
+func WechatList(ctx *gin.Context, limit, offset int) (wechats []*model.Wechat, count int64, err error) {
 	if service, ok := ctx.Value("service").(Service); ok {
-		return service.WechatList()
+		return service.WechatList(limit, offset)
 	}
-	return nil, ServiceError
+	return nil, 0, ServiceError
+}
+
+func WechatDelete(ctx *gin.Context, id int64) error {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.WechatDelete(id)
+	}
+	return ServiceError
+}
+func WechatListByCategory(ctx *gin.Context, cId int64, limit, offset int) (wechats []*model.Wechat, count int64, err error) {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.WechatListByCategory(cId, limit, offset)
+	}
+	return nil, 0, ServiceError
 }
 
 func CategoryCreate(ctx *gin.Context, category *model.Category) error {

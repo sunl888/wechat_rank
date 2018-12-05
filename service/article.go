@@ -16,7 +16,7 @@ type articleService struct {
 
 // 抓取文章
 func (aServ *articleService) ArticleGrab(laskWeekStartDate, laskWeekEndDate string) error {
-	wechats, err := aServ.WechatStore.WechatList()
+	wechats, _, err := aServ.WechatStore.WechatList(0, 0)
 	if err != nil {
 		return err
 	}
