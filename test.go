@@ -42,7 +42,7 @@ func main() {
 
 	ws := hashset.New("newrankcn", "ifanr", "CSDNnews", "appsolution", "wangjiong2015", "coollabs", "huxiu_com", "chaping321",
 		"Guokr42", "xiachufang", "bjchihuo", "newsxinhua", "ckxxwx", "rmrbwx")
-	client := utils.NewQingboClient("hE8COKMsiobwWPlXdqgnING2hmbchdoA", "1345")
+	client := utils.NewQingboClient("ATSWhpmUd5c86zOZwGGx1fDM0ECoS0aL", "1374")
 	account := utils.NewOfficialAccount(client)
 	for i := 0; i < 1; i++ {
 		wxname := ws.Values()[i].(string)

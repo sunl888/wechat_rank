@@ -13,3 +13,8 @@ go run cmd/server/main.go
 go run cmd/cli/cli.go
  - get 
  - rank --type=week,month,year
+
+#### 
+account:
+17127290867
+coder1019;
