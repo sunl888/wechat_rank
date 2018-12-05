@@ -28,6 +28,7 @@ type RankDetailResp struct {
 	WxLogo       string  `json:"wx_logo"`
 	WxVip        string  `json:"wx_vip"`
 	WxQrcode     string  `json:"wx_qrcode"`
+	WxNickname   string  `json:"wx_nickname"`
 	RankId       int64   `json:"rank_id"`
 	WxId         int64   `json:"wx_id"`
 	Wci          float64 `json:"wci"`
@@ -121,6 +122,7 @@ func convert2RankDetailResp(r *model.RankJoinWechat) *RankDetailResp {
 		WxName:       r.WxName,
 		WxNote:       r.WxNote,
 		WxLogo:       r.WxLogo,
+		WxNickname:   r.WxNickname,
 		WxVip:        r.WxVip,
 		WxQrcode:     r.WxQrcode,
 		RankId:       r.RankId,

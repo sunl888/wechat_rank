@@ -79,7 +79,7 @@ func SetupServer() *Server {
 	s.Conf = config.LoadConfig(path.Join(pwd, "config/config.yml"))
 	s.RedisClient = setupRedis(s.Conf.Redis.Address + ":" + s.Conf.Redis.Port)
 	s.DB = setupGorm(
-		/*s.Debug*/ false,
+		/*s.Debug*/ true,
 		s.Conf.DB.Driver,
 		s.Conf.DB.Host,
 		s.Conf.DB.Port,
@@ -127,7 +127,7 @@ func setupService(serv *Server) service.Service {
 		service.NewWechatService(s, officialAccount),
 		service.NewCategoryService(s),
 		service.NewArticleService(s, officialAccount, s),
-		service.NewRankService(s, s),
+		service.NewRankService(s, s, s),
 		tSvc,
 		service.NewUserService(s, s, tSvc, h),
 		service.NewCertificateService(s),

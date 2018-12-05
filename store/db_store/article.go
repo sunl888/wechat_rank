@@ -35,6 +35,23 @@ func (d *dbArticle) ArticleRank(startDate, endDate string, categoryId int64, off
 
 const DATE_FORMAT = "2006-01-02"
 
+func (d *dbArticle) ArticleListByWxId(startDate, endDate string, wxId int64) ([]*model.Article, error) {
+	s, err := time.Parse(DATE_FORMAT, startDate)
+	if err != nil {
+		return nil, err
+	}
+	e, err := time.Parse(DATE_FORMAT, endDate)
+	if err != nil {
+		return nil, err
+	}
+	e = e.Add(time.Duration(time.Second*60*60*24 - 1))
+
+	articles := make([]*model.Article, 10)
+	q := d.db.Model(model.Article{}).Where("wx_id = ? and published_at >=? and published_at <=?", wxId, s, e)
+	err = q.Find(&articles).Error
+	return articles, err
+}
+
 func (d *dbArticle) ArticleList(startDate, endDate string, offset, limit int) (articles []*model.Article, err error) {
 
 	s, err := time.Parse(DATE_FORMAT, startDate)

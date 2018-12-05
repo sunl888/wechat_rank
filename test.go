@@ -37,4 +37,6 @@ func main() {
 	fmt.Println(tt)
 
 	fmt.Println(time.Now().AddDate(0, 0, -2).Format(DATE_FORMAT))
+
+	fmt.Println(math.Log(0))
 }

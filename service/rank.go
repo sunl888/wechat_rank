@@ -9,6 +9,7 @@ import (
 type rankService struct {
 	model.RankStore
 	model.ArticleStore
+	model.WechatStore
 }
 
 const DATE_FORMAT = "2006-01-02"
@@ -19,22 +20,21 @@ func (r *rankService) RankCreate(rank *model.Rank) error {
 		return err
 	}
 	var (
-		offset = 0
-		limit  = 100
-		ranks  map[string]*model.RankDetail
+		ranks map[string]*model.RankDetail
 	)
 	ranks = make(map[string]*model.RankDetail, 10)
-	for {
-		articles, err := r.ArticleStore.ArticleList(rank.StartDate, rank.EndDate, offset, limit)
+	wechats, count, err := r.WechatStore.WechatList(0, 0)
+	for i := 0; i < int(count); i++ {
+		articles, err := r.ArticleStore.ArticleListByWxId(rank.StartDate, rank.EndDate, wechats[i].Id)
 		if err != nil {
 			return err
 		}
+		// 基础信息
+		if ranks[wechats[i].WxName] == nil {
+			ranks[wechats[i].WxName] = new(model.RankDetail)
+			ranks[wechats[i].WxName].WxId = wechats[i].Id
+		}
 		for _, article := range articles {
-			// 基础信息
-			if ranks[article.WxName] == nil {
-				ranks[article.WxName] = new(model.RankDetail)
-				ranks[article.WxName].WxId = article.WxId
-			}
 			// 总文章数
 			ranks[article.WxName].ArticleCount++
 			// 单篇文章最高阅读数
@@ -58,10 +58,6 @@ func (r *rankService) RankCreate(rank *model.Rank) error {
 				ranks[article.WxName].TopLikeCount += article.LikeCount
 			}
 		}
-		if len(articles) < limit {
-			break
-		}
-		offset += limit
 	}
 	// 计算每个公众号的周期内平均阅读数
 	t1, _ := time.ParseInLocation(DATE_FORMAT, rank.EndDate, time.Local)
@@ -72,10 +68,12 @@ func (r *rankService) RankCreate(rank *model.Rank) error {
 	}
 	for _, rankDetail := range ranks {
 		rankDetail.RankId = rank.Id
-		// 计算平均阅读量
-		rankDetail.AvgReadCount = int64((rankDetail.ReadCount) / days)
-		// 计算得分
-		rankDetail.Wci = calcScore(rankDetail, days)
+		if rankDetail.ArticleCount > 0 {
+			// 计算平均阅读量
+			rankDetail.AvgReadCount = int64((rankDetail.ReadCount) / days)
+			// 计算得分
+			rankDetail.Wci = calcScore(rankDetail, days)
+		}
 		err := r.RankStore.RankDetailCreate(rankDetail)
 		if err != nil {
 			return err
@@ -104,6 +102,6 @@ func calcScore(rank *model.RankDetail, days int64) float64 {
 	return wci
 }
 
-func NewRankService(rs model.RankStore, as model.ArticleStore) model.RankService {
-	return &rankService{rs, as}
+func NewRankService(rs model.RankStore, as model.ArticleStore, ws model.WechatStore) model.RankService {
+	return &rankService{rs, as, ws}
 }
