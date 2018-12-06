@@ -10,7 +10,6 @@ require (
 	github.com/gin-gonic/gin v1.3.0
 	github.com/go-redis/redis v6.14.2+incompatible
 	github.com/go-sql-driver/mysql v1.4.1
-	github.com/golang/protobuf v1.2.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/imdario/mergo v0.3.6 // indirect
 	github.com/jinzhu/gorm v1.9.1
@@ -31,7 +30,9 @@ require (
 	go.uber.org/atomic v1.3.2 // indirect
 	go.uber.org/multierr v1.1.0 // indirect
 	go.uber.org/zap v1.9.1
+	golang.org/x/crypto v0.0.0-20181203042331-505ab145d0a9
 	golang.org/x/sys v0.0.0-20180920110915-d641721ec2de // indirect
+	google.golang.org/appengine v1.3.0 // indirect
 	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect
 	gopkg.in/yaml.v2 v2.2.1 // indirect
 
