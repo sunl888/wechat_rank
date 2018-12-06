@@ -1,11 +1,6 @@
 package main
 
-import (
-	"code.aliyun.com/zmdev/wechat_rank/utils"
-	"fmt"
-	"github.com/emirpasic/gods/sets/hashset"
-	"time"
-)
+import "fmt"
 
 const DATE_FORMAT = "2006-01-02"
 
@@ -40,24 +35,30 @@ func main() {
 	//
 	//fmt.Println(math.Log(0))
 
-	ws := hashset.New("newrankcn", "ifanr", "CSDNnews", "appsolution", "wangjiong2015", "coollabs", "huxiu_com", "chaping321",
-		"Guokr42", "xiachufang", "bjchihuo", "newsxinhua", "ckxxwx", "rmrbwx")
-	client := utils.NewQingboClient("ATSWhpmUd5c86zOZwGGx1fDM0ECoS0aL", "1374")
-	account := utils.NewOfficialAccount(client)
-	for i := 0; i < 1; i++ {
-		wxname := ws.Values()[i].(string)
-		_, err := account.GetAccount(wxname)
-		if err != nil {
-			fmt.Println(err)
-		}
-		_, err = account.GetArticles(wxname, "", "", 0, 0)
-		if err != nil {
-			fmt.Println(err)
-		}
-		_, err = account.GetRankDays(wxname, "")
-		if err != nil {
-			fmt.Println(err)
-		}
-	}
-	time.Sleep(5 * time.Second)
+	//ws := hashset.New("newrankcn", "ifanr", "CSDNnews", "appsolution", "wangjiong2015", "coollabs", "huxiu_com", "chaping321",
+	//	"Guokr42", "xiachufang", "bjchihuo", "newsxinhua", "ckxxwx", "rmrbwx")
+	//client := utils.NewQingboClient("ATSWhpmUd5c86zOZwGGx1fDM0ECoS0aL", "1374")
+	//account := utils.NewOfficialAccount(client)
+	//for i := 0; i < 1; i++ {
+	//	wxname := ws.Values()[i].(string)
+	//	_, err := account.GetAccount(wxname)
+	//	if err != nil {
+	//		fmt.Println(err)
+	//	}
+	//	_, err = account.GetArticles(wxname, "", "", 0, 0)
+	//	if err != nil {
+	//		fmt.Println(err)
+	//	}
+	//	_, err = account.GetRankDays(wxname, "")
+	//	if err != nil {
+	//		fmt.Println(err)
+	//	}
+	//}
+	//time.Sleep(5 * time.Second)
+	var a float64
+	var b, c int64
+	b = 400
+	c = 200
+	a = float64(c) / float64(b)
+	fmt.Println(a)
 }

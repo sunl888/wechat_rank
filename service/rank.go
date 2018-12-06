@@ -68,10 +68,14 @@ func (r *rankService) Rank(wechat *model.Wechat, rank *model.Rank) error {
 	for _, rankDetail := range ranks {
 		rankDetail.RankId = rank.Id
 		if rankDetail.ArticleCount > 0 {
-			// 计算平均阅读量
+			// 平均阅读量
 			rankDetail.AvgReadCount = int64((rankDetail.ReadCount) / days)
-			// 计算得分
-			rankDetail.Wci = calcScore(rankDetail, days)
+			// 平均点赞量
+			rankDetail.AvgLikeCount = int64((rankDetail.LikeCount) / days)
+			// 点赞率
+			rankDetail.LikeRate = float64(rankDetail.LikeCount) / float64(rankDetail.ReadCount)
+			// Wci
+			rankDetail.Wci = calculateWci(rankDetail, days)
 		}
 		err := r.RankStore.RankDetailCreate(rankDetail)
 		if err != nil {
@@ -87,7 +91,7 @@ func (r *rankService) Rank(wechat *model.Wechat, rank *model.Rank) error {
 //n为评估时间段内账号所发文章数；
 //Rt和Zt为评估时间段内账号所发头条的总阅读数和总点赞数；
 //Rmax和Zmax为评估时间段内账号所发文章的最高阅读数和最高点赞数。
-func calcScore(rank *model.RankDetail, days int64) float64 {
+func calculateWci(rank *model.RankDetail, days int64) float64 {
 	// 整体传播力 o=85%*ln(R/d+1) + 15%*ln(10*Z/d+1)
 	o := 0.85*math.Log(float64(rank.ReadCount/days+1)) + 0.15*math.Log(float64(10*rank.LikeCount/days+1))
 	// 篇均传播力 a=85%*ln(R/n+1) + 15%*ln(10*Z/n+1)
