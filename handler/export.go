@@ -43,7 +43,7 @@ func (*Export) ExportData(ctx *gin.Context) {
 		cellNumType.Ptr(), cellNumType.Ptr(), cellNumType.Ptr(), cellNumType.Ptr(),
 		cellNumType.Ptr(), cellNumType.Ptr(), cellNumType.Ptr(), cellNumType.Ptr(), cellNumType.Ptr(),
 	}
-	if err := builder.AddSheet("Sheet1", headers(), ct); err != nil {
+	if err := builder.AddSheet("排名", headers(), ct); err != nil {
 		_ = ctx.Error(err)
 		return
 	}
@@ -58,8 +58,9 @@ func (*Export) ExportData(ctx *gin.Context) {
 		_ = ctx.Error(err)
 		return
 	}
+	var records [][]string
 	for i := 0; i < int(count); i++ {
-		_ = streamFile.Write([]string{
+		records = append(records, []string{
 			ranks[i].WxNickname,                      // 公众号
 			ranks[i].WxName,                          // 帐号名
 			fmt.Sprintf("%d", ranks[i].ArticleCount), // 文章总数
@@ -76,8 +77,9 @@ func (*Export) ExportData(ctx *gin.Context) {
 			fmt.Sprintf("%.5f", ranks[i].Wci),        // WCI
 			fmt.Sprintf("%d", i+1),                   // 总排名
 		})
-		streamFile.Flush()
 	}
+	_ = streamFile.WriteAll(records)
+	streamFile.Flush()
 	return
 }
 
