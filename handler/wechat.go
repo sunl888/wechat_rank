@@ -34,7 +34,7 @@ func (w *Wechat) List(ctx *gin.Context) {
 	limit, offset := getLimitAndOffset(ctx)
 	wechats, count, err := service.WechatList(ctx, limit, offset)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		_ = ctx.Error(err)
 		return
 	}
 	ctx.JSON(200, gin.H{
@@ -46,12 +46,12 @@ func (w *Wechat) List(ctx *gin.Context) {
 func (w *Wechat) Delete(ctx *gin.Context) {
 	cId, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errors.BadRequest("id 格式不正确", nil))
+		_ = ctx.Error(errors.BadRequest("id 格式不正确", nil))
 		return
 	}
 	err = service.WechatDelete(ctx, cId)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		_ = ctx.Error(err)
 		return
 	}
 	ctx.Status(204)
@@ -63,7 +63,7 @@ func (w *Wechat) Create(ctx *gin.Context) {
 		CategoryId int64  `json:"category_id" form:"category_id"`
 	}{}
 	if err := ctx.ShouldBind(&l); err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		_ = ctx.Error(err)
 		return
 	}
 	wechat := model.Wechat{
@@ -72,7 +72,7 @@ func (w *Wechat) Create(ctx *gin.Context) {
 	}
 	err := service.WechatCreate(ctx, &wechat)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		_ = ctx.Error(err)
 		return
 	}
 	ctx.JSON(200, wechat)

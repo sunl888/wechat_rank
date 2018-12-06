@@ -9,6 +9,7 @@ import (
 )
 
 type Server struct {
+	ServiceName string
 	Debug       bool
 	RedisClient *redis.Client
 	DB          *gorm.DB

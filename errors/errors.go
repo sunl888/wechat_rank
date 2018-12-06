@@ -2,40 +2,36 @@ package errors
 
 import "github.com/zm-dev/gerrors"
 
-const (
-	ServiceName = "default"
-)
-
 // 参数绑定出错
 func BindError(err error) error {
-	return gerrors.BadRequest(10000, ServiceName, err.Error(), err)
+	return gerrors.BadRequest(10000, err.Error(), err)
 }
 
 // 清博大数据Api error
 func QingboError(name, msg string, code, status int) error {
-	return gerrors.New(code, ServiceName, msg, "", status)
+	return gerrors.New(code, msg, name, status)
 }
 
 func InternalServerError(msg string, err error) error {
-	return gerrors.InternalServerError(10001, ServiceName, msg, err)
+	return gerrors.InternalServerError(10001, msg, err)
 }
 
 func BadRequest(msg string, err error) error {
-	return gerrors.BadRequest(10002, ServiceName, msg, err)
+	return gerrors.BadRequest(10002, msg, err)
 }
 
 func Unauthorized() error {
-	return gerrors.Unauthorized(10003, ServiceName, "请先登录", nil)
+	return gerrors.Unauthorized(10003, "请先登录", nil)
 }
 
 func ErrAccountAlreadyExisted() error {
-	return gerrors.BadRequest(20001, ServiceName, "account already existed", nil)
+	return gerrors.BadRequest(20001, "account already existed", nil)
 }
 
 func ErrPassword() error {
-	return gerrors.BadRequest(20002, ServiceName, "error password", nil)
+	return gerrors.BadRequest(20002, "error password", nil)
 }
 
 func ErrAccountNotFound() error {
-	return gerrors.NotFound(20003, ServiceName, "account not found", nil)
+	return gerrors.NotFound(20003, "account not found", nil)
 }

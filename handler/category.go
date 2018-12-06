@@ -6,7 +6,6 @@ import (
 	"code.aliyun.com/zmdev/wechat_rank/service"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	"net/http"
 	"strconv"
 	"time"
 )
@@ -25,14 +24,14 @@ type CategoryResp struct {
 func (*Category) Update(ctx *gin.Context) {
 	cId, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errors.BadRequest("id 格式不正确", nil))
+		_ = ctx.Error(errors.BadRequest("id 格式不正确", nil))
 		return
 	}
 	l := struct {
 		Title string `json:"title" form:"title"`
 	}{}
 	if err := ctx.ShouldBind(&l); err != nil {
-		ctx.JSON(http.StatusBadRequest, errors.BindError(err))
+		_ = ctx.Error(errors.BindError(err))
 		return
 	}
 	err = service.CategoryUpdate(ctx, &model.Category{
@@ -40,7 +39,7 @@ func (*Category) Update(ctx *gin.Context) {
 		Title: l.Title,
 	})
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		_ = ctx.Error(err)
 		return
 	}
 	ctx.Status(204)
@@ -51,7 +50,7 @@ func (*Category) Create(ctx *gin.Context) {
 		Title string `json:"title" form:"title"`
 	}{}
 	if err := ctx.ShouldBind(&l); err != nil {
-		ctx.JSON(http.StatusBadRequest, errors.BindError(err))
+		_ = ctx.Error(errors.BindError(err))
 		return
 	}
 	category := &model.Category{
@@ -59,7 +58,7 @@ func (*Category) Create(ctx *gin.Context) {
 	}
 	err := service.CategoryCreate(ctx, category)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errors.BindError(err))
+		_ = ctx.Error(errors.BindError(err))
 		return
 	}
 	ctx.JSON(200, convert2CategoryResp(category, ctx))
@@ -68,7 +67,7 @@ func (*Category) Create(ctx *gin.Context) {
 func (*Category) List(ctx *gin.Context) {
 	categories, err := service.CategoryList(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		_ = ctx.Error(err)
 		return
 	}
 	ctx.JSON(200, convert2CategoriesResp(categories, ctx))
@@ -77,12 +76,12 @@ func (*Category) List(ctx *gin.Context) {
 func (*Category) Show(ctx *gin.Context) {
 	cId, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errors.BadRequest("id 格式不正确", nil))
+		_ = ctx.Error(errors.BadRequest("id 格式不正确", nil))
 		return
 	}
 	category, err := service.CategoryLoad(ctx, cId)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errors.BadRequest("分类不存在", nil))
+		_ = ctx.Error(errors.BadRequest("分类不存在", nil))
 		return
 	}
 	ctx.JSON(200, convert2CategoryResp(category, ctx))
@@ -92,7 +91,7 @@ func (c *Category) Delete(ctx *gin.Context) {
 	var err error
 	cId, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errors.BadRequest("id 格式不正确", nil))
+		_ = ctx.Error(errors.BadRequest("id 格式不正确", nil))
 		return
 	}
 	_, err = service.CategoryLoad(ctx, cId)
@@ -100,18 +99,17 @@ func (c *Category) Delete(ctx *gin.Context) {
 		if gorm.IsRecordNotFoundError(err) {
 			err = errors.BadRequest("分类不存在", nil)
 		}
-		// todo err 显示
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		_ = ctx.Error(err)
 		return
 	}
 	_, count, err := service.WechatListByCategory(ctx, cId, 1, 0)
 	if count > 0 {
-		ctx.JSON(http.StatusBadRequest, errors.BadRequest("该分类下有公众号,不能删除", nil))
+		_ = ctx.Error(errors.BadRequest("该分类下有公众号,不能删除", nil))
 		return
 	}
 	err = service.CategoryDelete(ctx, cId)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		_ = ctx.Error(err)
 		return
 	}
 	ctx.Status(204)

@@ -17,10 +17,10 @@ func (ge *GlobalError) Error() string {
 	return string(b)
 }
 
-func New(code int, serviceName, message string, detail interface{}, statusCode int) error {
+func New(code int, message string, detail interface{}, statusCode int) error {
 	return &GlobalError{
 		Code:        code,
-		ServiceName: serviceName,
+		// ServiceName: serviceName,
 		Message:     message,
 		Detail:      detail,
 		StatusCode:  statusCode,
@@ -28,10 +28,10 @@ func New(code int, serviceName, message string, detail interface{}, statusCode i
 }
 
 // BadRequest generates a 400 error.
-func BadRequest(code int, serviceName, message string, detail interface{}) error {
+func BadRequest(code int, message string, detail interface{}) error {
 	return &GlobalError{
 		Code:        code,
-		ServiceName: serviceName,
+		// ServiceName: serviceName,
 		StatusCode:  400,
 		Message:     message,
 		Detail:      detail,
@@ -39,10 +39,10 @@ func BadRequest(code int, serviceName, message string, detail interface{}) error
 }
 
 // Unauthorized generates a 401 error.
-func Unauthorized(code int, serviceName, message string, detail interface{}) error {
+func Unauthorized(code int, message string, detail interface{}) error {
 	return &GlobalError{
 		Code:        code,
-		ServiceName: serviceName,
+		// ServiceName: serviceName,
 		Message:     message,
 		StatusCode:  401,
 		Detail:      detail,
@@ -50,10 +50,10 @@ func Unauthorized(code int, serviceName, message string, detail interface{}) err
 }
 
 // Forbidden generates a 403 error.
-func Forbidden(code int, serviceName, message string, detail interface{}) error {
+func Forbidden(code int, message string, detail interface{}) error {
 	return &GlobalError{
 		Code:        code,
-		ServiceName: serviceName,
+		// ServiceName: serviceName,
 		Message:     message,
 		StatusCode:  403,
 		Detail:      detail,
@@ -61,10 +61,10 @@ func Forbidden(code int, serviceName, message string, detail interface{}) error 
 }
 
 // NotFound generates a 404 error.
-func NotFound(code int, serviceName, message string, detail interface{}) error {
+func NotFound(code int, message string, detail interface{}) error {
 	return &GlobalError{
 		Code:        code,
-		ServiceName: serviceName,
+		// ServiceName: serviceName,
 		Message:     message,
 		StatusCode:  404,
 		Detail:      detail,
@@ -72,10 +72,10 @@ func NotFound(code int, serviceName, message string, detail interface{}) error {
 }
 
 // InternalServerError generates a 500 error.
-func InternalServerError(code int, serviceName, message string, detail interface{}) error {
+func InternalServerError(code int, message string, detail interface{}) error {
 	return &GlobalError{
 		Code:        code,
-		ServiceName: serviceName,
+		// ServiceName: serviceName,
 		Message:     message,
 		StatusCode:  500,
 		Detail:      detail,
@@ -83,10 +83,10 @@ func InternalServerError(code int, serviceName, message string, detail interface
 }
 
 // Conflict generates a 409 error.
-func Conflict(code int, serviceName, message string, detail interface{}) error {
+func Conflict(code int, message string, detail interface{}) error {
 	return &GlobalError{
 		Code:        code,
-		ServiceName: serviceName,
+		// ServiceName: serviceName,
 		Message:     message,
 		StatusCode:  409,
 		Detail:      detail,
@@ -96,10 +96,10 @@ func Conflict(code int, serviceName, message string, detail interface{}) error {
 type ValidateError map[string][]string
 
 // UnprocessableEntity generates a 422 error.
-func UnprocessableEntity(code int, serviceName string, ve ValidateError) error {
+func UnprocessableEntity(code int, ve ValidateError) error {
 	return &GlobalError{
 		Code:        code,
-		ServiceName: serviceName,
+		// ServiceName: serviceName,
 		Message:     "The given data failed to pass validation.",
 		StatusCode:  422,
 		Detail:      ve,

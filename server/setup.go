@@ -77,6 +77,7 @@ func SetupServer() *Server {
 		log.Fatalf("获取当前路径失败. ERR:%s", err.Error())
 	}
 	s.Conf = config.LoadConfig(path.Join(pwd, "config/config.yml"))
+	s.ServiceName = s.Conf.ServiceName
 	s.RedisClient = setupRedis(s.Conf.Redis.Address + ":" + s.Conf.Redis.Port)
 	s.DB = setupGorm(
 		/*s.Debug*/ true,

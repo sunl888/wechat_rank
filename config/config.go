@@ -32,6 +32,7 @@ type TicketConfig struct {
 }
 type Config struct {
 	EnvVarPrefix string         `json:"env-var-prefix"`
+	ServiceName  string         `json:"service-name"`
 	AppSalt      string         `json:"app_salt"`
 	DB           DatabaseConfig `json:"database"`
 	Redis        RedisConfig    `json:"redis"`

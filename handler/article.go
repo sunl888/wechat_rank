@@ -3,7 +3,6 @@ package handler
 import (
 	"code.aliyun.com/zmdev/wechat_rank/service"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type Article struct {
@@ -28,12 +27,12 @@ func (*Article) List(ctx *gin.Context) {
 	}{}
 	limit, offset := getLimitAndOffset(ctx)
 	if err := ctx.ShouldBind(&l); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = ctx.Error(err)
 		return
 	}
 	articles, count, err := service.ArticleListWithWx(ctx, l.WxId, limit, offset)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		_ = ctx.Error(err)
 		return
 	}
 	ctx.JSON(200, gin.H{

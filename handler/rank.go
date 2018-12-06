@@ -4,7 +4,6 @@ import (
 	"code.aliyun.com/zmdev/wechat_rank/errors"
 	"code.aliyun.com/zmdev/wechat_rank/service"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type Rank struct {
@@ -49,12 +48,12 @@ func (r *Rank) RankList(ctx *gin.Context) {
 		Period string `json:"period" form:"period"`
 	}{}
 	if err := ctx.ShouldBind(&l); err != nil {
-		ctx.JSON(http.StatusBadRequest, errors.BindError(err))
+		_ = ctx.Error(errors.BindError(err))
 		return
 	}
 	ranks, err := service.RankList(ctx, l.Period)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		_ = ctx.Error(err)
 		return
 	}
 	ctx.JSON(200, ranks)
@@ -67,12 +66,12 @@ func (r *Rank) AccountRank(ctx *gin.Context) {
 	}{}
 	limit, offset := getLimitAndOffset(ctx)
 	if err := ctx.ShouldBind(&l); err != nil {
-		ctx.JSON(http.StatusBadRequest, errors.BindError(err))
+		_ = ctx.Error(errors.BindError(err))
 		return
 	}
 	ranks, count, err := service.RankDetail(ctx, l.RankId, l.CategoryId, limit, offset)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		_ = ctx.Error(err)
 		return
 	}
 	ctx.JSON(200, gin.H{
@@ -89,12 +88,12 @@ func (r *Rank) ArticleRank(ctx *gin.Context) {
 	}{}
 	limit, offset := getLimitAndOffset(ctx)
 	if err := ctx.ShouldBind(&l); err != nil {
-		ctx.JSON(http.StatusBadRequest, errors.BindError(err))
+		_ = ctx.Error(errors.BindError(err))
 		return
 	}
 	articles, count, err := service.ArticleRank(ctx, l.StartDate, l.EndDate, l.CategoryId, offset, limit)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		_ = ctx.Error(err)
 		return
 	}
 	ctx.JSON(200, gin.H{

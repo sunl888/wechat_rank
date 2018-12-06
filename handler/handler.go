@@ -4,8 +4,13 @@ import (
 	"code.aliyun.com/zmdev/wechat_rank/handler/middleware"
 	"code.aliyun.com/zmdev/wechat_rank/server"
 	"github.com/gin-gonic/gin"
+	gerrorsGin "github.com/zm-dev/gerrors/gin"
 	"net/http"
 	"strconv"
+)
+
+const (
+	ServiceName = "wechat_rank"
 )
 
 func CreateHTTPHandler(svr *server.Server) http.Handler {
@@ -21,9 +26,11 @@ func CreateHTTPHandler(svr *server.Server) http.Handler {
 	rankHandler := NewRank()
 	authHandler := NewAuth()
 	articleHandler := NewArticle()
+	exportHandler := NewExport()
 
 	router := gin.Default()
 	router.Use(middleware.ServiceMiddleware(svr.Service))
+	router.Use(gerrorsGin.NewHandleErrorMiddleware(svr.ServiceName))
 	authRouter := router.Group("/auth")
 	// 登录
 	authRouter.POST("/login", authHandler.Login)
@@ -67,6 +74,7 @@ func CreateHTTPHandler(svr *server.Server) http.Handler {
 	// 指定公众号的所有文章
 	router.GET("/article", articleHandler.List)
 
+	router.GET("/export", exportHandler.ExportData)
 	return router
 }
 

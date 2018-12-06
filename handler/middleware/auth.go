@@ -4,7 +4,6 @@ import (
 	"code.aliyun.com/zmdev/wechat_rank/errors"
 	"code.aliyun.com/zmdev/wechat_rank/service"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 var (
@@ -18,7 +17,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		isLogin := true
 		//isLogin := check(c)
 		if !isLogin {
-			c.JSON(http.StatusUnauthorized, errors.Unauthorized())
+			_ = c.Error(errors.Unauthorized())
 			c.Abort()
 			return
 		}

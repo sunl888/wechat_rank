@@ -5,7 +5,6 @@ import (
 	"code.aliyun.com/zmdev/wechat_rank/model"
 	"code.aliyun.com/zmdev/wechat_rank/service"
 	"github.com/gin-gonic/gin"
-	"net/http"
 	"strconv"
 	"strings"
 )
@@ -20,12 +19,12 @@ func (a *Auth) Login(c *gin.Context) {
 	}
 	req := &Req{}
 	if err := c.ShouldBind(req); err != nil {
-		c.JSON(http.StatusBadRequest, errors.BindError(err))
+		_ = c.Error(errors.BindError(err))
 		return
 	}
 	resp, err := service.UserLogin(c, strings.TrimSpace(req.Account), strings.TrimSpace(req.Password))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, errors.ErrPassword())
+		_ = c.Error(errors.ErrPassword())
 		return
 	}
 	setAuthCookie(c, resp.Id, resp.UserId)
@@ -45,13 +44,14 @@ func removeAuthCookie(c *gin.Context) {
 func (a *Auth) Logout(c *gin.Context) {
 	ticketId, err := c.Cookie("ticket_id")
 	if err != nil {
-		c.JSON(204, err.Error())
+		c.JSON(204, nil)
 		return
 	}
 	removeAuthCookie(c)
 	err = service.TicketDestroy(c, ticketId)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		_ = c.Error(err)
+		return
 	}
 	c.JSON(204, nil)
 }
@@ -64,12 +64,12 @@ func (a *Auth) Register(c *gin.Context) {
 	req := &Req{}
 
 	if err := c.ShouldBind(req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(err)
 		return
 	}
 	regResp, err := service.UserRegister(c, strings.TrimSpace(req.Account), model.CertificateType(0), req.Password)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(err)
 		return
 	}
 	c.JSON(201, regResp)
