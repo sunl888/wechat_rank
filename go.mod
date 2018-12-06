@@ -23,6 +23,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/pkg/errors v0.8.0
 	github.com/satori/go.uuid v1.2.0
+	github.com/tealeg/xlsx v1.0.4-0.20181024002044-dbf71b6a931e
 	github.com/ugorji/go/codec v0.0.0-20181120210156-7d13b37dbec6 // indirect
 	github.com/urfave/cli v1.20.0
 	github.com/vmihailenco/msgpack v4.0.1+incompatible
@@ -33,4 +34,5 @@ require (
 	golang.org/x/sys v0.0.0-20181122145206-62eef0e2fa9b // indirect
 	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect
 	gopkg.in/yaml.v2 v2.2.1 // indirect
+
 )
