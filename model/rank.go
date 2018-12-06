@@ -26,6 +26,8 @@ type RankDetail struct {
 	MaxReadCount int64   `json:"max_read_count"`                           // 统计周期内所有发布内容中的单篇最高阅读数
 	MaxLikeCount int64   `json:"max_like_count"`                           // 统计周期内所有发布内容中的单篇最高点赞数
 	AvgReadCount int64   `json:"avg_read_count"`                           // 统计周期内所有发布内容的阅读数平均值
+	AvgLikeCount int64   `json:"avg_like_count"`                           // 统计周期内所有发布内容的阅读数平均值
+	LikeRate     float64 `json:"like_rate"`                                // 点赞率
 }
 
 // transformer

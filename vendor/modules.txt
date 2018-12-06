@@ -77,6 +77,8 @@ github.com/modern-go/reflect2
 github.com/pkg/errors
 # github.com/satori/go.uuid v1.2.0
 github.com/satori/go.uuid
+# github.com/tealeg/xlsx v1.0.4-0.20181024002044-dbf71b6a931e
+github.com/tealeg/xlsx
 # github.com/ugorji/go/codec v0.0.0-20181120210156-7d13b37dbec6
 github.com/ugorji/go/codec
 # github.com/urfave/cli v1.20.0
@@ -103,9 +105,9 @@ golang.org/x/crypto/argon2
 golang.org/x/crypto/bcrypt
 golang.org/x/crypto/blake2b
 golang.org/x/crypto/blowfish
-# golang.org/x/net v0.0.0-20181201002055-351d144fa1fc
+# golang.org/x/net v0.0.0-20180724234803-3673e40ba225
 golang.org/x/net/context
-# golang.org/x/sys v0.0.0-20181122145206-62eef0e2fa9b
+# golang.org/x/sys v0.0.0-20180920110915-d641721ec2de
 golang.org/x/sys/cpu
 golang.org/x/sys/unix
 # google.golang.org/appengine v1.3.0

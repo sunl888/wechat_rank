@@ -25,7 +25,11 @@ func (d *dbRank) RankDetail(rankId, categoryId int64, limit, offset int) (ranks 
 		q = q.Where(" w.category_id = ?", categoryId)
 	}
 	q.Count(&count)
-	err = q.Omit("created_at,updated_at").Offset(offset).Order("wci desc").Limit(limit).Find(&ranks).Error
+	q = q.Omit("created_at,updated_at").Order("wci desc")
+	if limit != 0 {
+		q = q.Offset(offset).Limit(limit)
+	}
+	err = q.Find(&ranks).Error
 	return
 }
 
