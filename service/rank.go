@@ -2,7 +2,9 @@ package service
 
 import (
 	"code.aliyun.com/zmdev/wechat_rank/model"
+	"fmt"
 	"math"
+	"strconv"
 	"time"
 )
 
@@ -14,48 +16,40 @@ type rankService struct {
 
 const DATE_FORMAT = "2006-01-02"
 
-func (r *rankService) Rank(wechat *model.Wechat, rank *model.Rank) error {
-	var (
-		err   error
-		ranks map[string]*model.RankDetail
-	)
+func (r *rankService) Rank(wechat *model.Wechat, rank *model.Rank) (rankDetail *model.RankDetail, err error) {
 	rank.Name = rank.StartDate + "~" + rank.EndDate
 	err = r.RankStore.RankCreate(rank)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	ranks = make(map[string]*model.RankDetail, 10)
+	rankDetail = &model.RankDetail{}
 	articles, err := r.ArticleStore.ArticleListByWxId(rank.StartDate, rank.EndDate, wechat.Id)
 	if err != nil {
-		return err
+		return
 	}
-	// 基础信息
-	if ranks[wechat.WxName] == nil {
-		ranks[wechat.WxName] = new(model.RankDetail)
-		ranks[wechat.WxName].WxId = wechat.Id
-	}
+	rankDetail.WxId = wechat.Id
 	for _, article := range articles {
 		// 总文章数
-		ranks[wechat.WxName].ArticleCount++
+		rankDetail.ArticleCount++
 		// 单篇文章最高阅读数
-		if article.ReadCount > ranks[wechat.WxName].MaxReadCount {
-			ranks[wechat.WxName].MaxReadCount = article.ReadCount
+		if article.ReadCount > rankDetail.MaxReadCount {
+			rankDetail.MaxReadCount = article.ReadCount
 		}
 		// 单篇文章最高点赞数
-		if article.LikeCount > ranks[wechat.WxName].MaxLikeCount {
-			ranks[wechat.WxName].MaxLikeCount = article.LikeCount
+		if article.LikeCount > rankDetail.MaxLikeCount {
+			rankDetail.MaxLikeCount = article.LikeCount
 		}
 		// 所有文章阅读数
-		ranks[wechat.WxName].ReadCount += article.ReadCount
+		rankDetail.ReadCount += article.ReadCount
 		// 所有文章点赞数
-		ranks[wechat.WxName].LikeCount += article.LikeCount
+		rankDetail.LikeCount += article.LikeCount
 		if article.Top == 1 {
 			// 头条文章数量
-			ranks[wechat.WxName].TopCount++
+			rankDetail.TopCount++
 			// 头条文章阅读数
-			ranks[wechat.WxName].TopReadCount += article.ReadCount
+			rankDetail.TopReadCount += article.ReadCount
 			// 头条文章点赞数
-			ranks[wechat.WxName].TopLikeCount += article.LikeCount
+			rankDetail.TopLikeCount += article.LikeCount
 		}
 	}
 	// 计算每个公众号的周期内平均阅读数
@@ -65,24 +59,22 @@ func (r *rankService) Rank(wechat *model.Wechat, rank *model.Rank) error {
 	if days == 0 {
 		days = 1
 	}
-	for _, rankDetail := range ranks {
-		rankDetail.RankId = rank.Id
-		if rankDetail.ArticleCount > 0 {
-			// 平均阅读量
-			rankDetail.AvgReadCount = int64((rankDetail.ReadCount) / days)
-			// 平均点赞量
-			rankDetail.AvgLikeCount = int64((rankDetail.LikeCount) / days)
-			// 点赞率
-			rankDetail.LikeRate = float64(rankDetail.LikeCount) / float64(rankDetail.ReadCount)
-			// Wci
-			rankDetail.Wci = calculateWci(rankDetail, days)
-		}
-		err := r.RankStore.RankDetailCreate(rankDetail)
-		if err != nil {
-			return err
-		}
+	rankDetail.RankId = rank.Id
+	if rankDetail.ArticleCount > 0 {
+		// 平均阅读量
+		rankDetail.AvgReadCount = int64((rankDetail.ReadCount) / days)
+		// 平均点赞量
+		rankDetail.AvgLikeCount = int64((rankDetail.LikeCount) / days)
+		// 点赞率
+		rankDetail.LikeRate, _ = strconv.ParseFloat(fmt.Sprintf("%.5f", float64(rankDetail.LikeCount)/float64(rankDetail.ReadCount)), 64)
+		// Wci
+		rankDetail.Wci = calculateWci(rankDetail, days)
 	}
-	return nil
+	/*err = r.RankStore.RankDetailCreate(rankDetail)
+	if err != nil {
+		return
+	}*/
+	return
 }
 
 //R为评估时间段内所有文章（n）的阅读总数；

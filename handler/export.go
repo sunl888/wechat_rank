@@ -75,7 +75,7 @@ func (*Export) ExportData(ctx *gin.Context) {
 			fmt.Sprintf("%d", ranks[i].MaxLikeCount), // 最大点赞数
 			fmt.Sprintf("%.5f", ranks[i].LikeRate),   // 点赞率
 			fmt.Sprintf("%.5f", ranks[i].Wci),        // WCI
-			fmt.Sprintf("%d", i+1),                   // 总排名
+			fmt.Sprintf("%d", ranks[i].TotalRank),    // 总排名
 		})
 	}
 	_ = streamFile.WriteAll(records)

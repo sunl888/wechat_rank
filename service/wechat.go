@@ -5,7 +5,6 @@ import (
 	"code.aliyun.com/zmdev/wechat_rank/model"
 	"code.aliyun.com/zmdev/wechat_rank/utils"
 	"github.com/jinzhu/gorm"
-	"time"
 )
 
 type wechatService struct {
@@ -25,16 +24,7 @@ func (w *wechatService) WechatCreate(wechat *model.Wechat) error {
 				return errors.BadRequest("公众号不存在", nil)
 			}
 			wechatData := wechatResp.Data[0]
-			lastDate := time.Now().AddDate(0, 0, -1).Format(DATE_FORMAT)
-			rankDay, err := w.client.GetRankDays(wechat.WxName, lastDate)
-			if err != nil {
-				return err
-			}
-			nickname := ""
-			if len(rankDay.Data) > 0 {
-				nickname = rankDay.Data[0].WxNickname
-			}
-			convert2WechatModel(wechatData, wechat, nickname)
+			convert2WechatModel(wechatData, wechat)
 			err = w.WechatStore.WechatCreate(wechat)
 			if err != nil {
 				return err
@@ -47,18 +37,14 @@ func (w *wechatService) WechatCreate(wechat *model.Wechat) error {
 	return nil
 }
 
-func convert2WechatModel(account *utils.AccountData, wechat *model.Wechat, nickname string) {
+func convert2WechatModel(account *utils.AccountData, wechat *model.Wechat) {
 	wechat.WxName = account.WxName
 	wechat.VerifyName = account.VerifyName
 	wechat.WxLogo = account.WxLogo
 	wechat.WxNote = account.WxNote
 	wechat.WxQrcode = account.WxQrcode
 	wechat.WxVip = account.WxVip
-	if nickname == "" {
-		wechat.WxNickname = wechat.VerifyName
-	} else {
-		wechat.WxNickname = nickname
-	}
+	wechat.WxNickname = account.WxNickname
 }
 
 func NewWechatService(ws model.WechatStore, client *utils.OfficialAccount) model.WechatService {

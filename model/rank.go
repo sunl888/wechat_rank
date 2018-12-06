@@ -28,6 +28,7 @@ type RankDetail struct {
 	AvgReadCount int64   `json:"avg_read_count"`                           // 统计周期内所有发布内容的阅读数平均值
 	AvgLikeCount int64   `json:"avg_like_count"`                           // 统计周期内所有发布内容的阅读数平均值
 	LikeRate     float64 `json:"like_rate"`                                // 点赞率
+	TotalRank    int     `json:"total_rank"`                               // 总排名
 }
 
 // transformer
@@ -51,5 +52,5 @@ type RankStore interface {
 
 type RankService interface {
 	RankStore
-	Rank(wechat *Wechat, rank *Rank) error
+	Rank(wechat *Wechat, rank *Rank) (*RankDetail, error)
 }

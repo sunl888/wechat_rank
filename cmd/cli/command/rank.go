@@ -4,9 +4,17 @@ import (
 	"code.aliyun.com/zmdev/wechat_rank/model"
 	"code.aliyun.com/zmdev/wechat_rank/server"
 	"fmt"
+	"github.com/pkg/errors"
 	"github.com/urfave/cli"
+	"sort"
 	"time"
 )
+
+type Data []*model.RankDetail
+
+func (p Data) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+func (p Data) Len() int           { return len(p) }
+func (p Data) Less(i, j int) bool { return p[i].Wci > p[j].Wci }
 
 func NewRankCommand(svr *server.Server) cli.Command {
 	service := svr.Service
@@ -57,8 +65,9 @@ func NewRankCommand(svr *server.Server) cli.Command {
 				log.Error(fmt.Sprintf("创建排名出错: %+v", err.Error()))
 				return cli.NewExitError(err, 3)
 			}
+			var ranks Data
 			for i := 0; i < int(count); i++ {
-				err = service.Rank(wechats[i], &model.Rank{
+				rankDetail, err := service.Rank(wechats[i], &model.Rank{
 					Period:    c.String("type"),
 					StartDate: startDate,
 					EndDate:   endDate,
@@ -66,6 +75,16 @@ func NewRankCommand(svr *server.Server) cli.Command {
 				if err != nil {
 					log.Error(fmt.Sprintf("创建排名出错: %+v", err.Error()))
 					return cli.NewExitError(err, 4)
+				}
+				ranks = append(ranks, rankDetail)
+			}
+			sort.Sort(ranks)
+			for i := 0; i < ranks.Len(); i++ {
+				// 总排名
+				ranks[i].TotalRank = i + 1;
+				err = service.RankDetailCreate(ranks[i])
+				if err != nil {
+					return cli.NewExitError(errors.New(fmt.Sprintf("创建排名出错: %+v", err.Error())), 4)
 				}
 			}
 			return nil

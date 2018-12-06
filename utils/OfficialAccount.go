@@ -3,6 +3,7 @@ package utils
 import (
 	"code.aliyun.com/zmdev/wechat_rank/errors"
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -20,6 +21,7 @@ type AccountData struct {
 	VerifyName string `json:"verify_name"`
 	WxName     string `json:"wx_name"`
 	AddTime    string `json:"add_time"`
+	WxNickname string `json:"wx_nickname"`
 	WxVip      string `json:"wx_vip"`
 	WxNote     string `json:"wx_note"`
 	WxLogo     string `json:"wx_logo"`
@@ -45,6 +47,7 @@ type ArticleResponse struct {
 
 type RankDay struct {
 	WxNickname string `json:"wx_nickname"`
+	// ...
 }
 
 type RankDayResponse struct {
@@ -65,6 +68,7 @@ func (a *OfficialAccount) GetAccount(accountName string) (*AccountResponse, erro
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(resp)
 	wechatResp := &AccountResponse{}
 	err = json.Unmarshal([]byte(resp), wechatResp)
 	if err != nil {

@@ -1,7 +1,5 @@
 package main
 
-import "fmt"
-
 const DATE_FORMAT = "2006-01-02"
 
 func main() {
@@ -55,10 +53,4 @@ func main() {
 	//	}
 	//}
 	//time.Sleep(5 * time.Second)
-	var a float64
-	var b, c int64
-	b = 400
-	c = 200
-	a = float64(c) / float64(b)
-	fmt.Println(a)
 }
