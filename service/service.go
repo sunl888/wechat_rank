@@ -112,8 +112,14 @@ func ArticleList(ctx *gin.Context, startDate, endDate string, limit, offset int)
 	}
 	return nil, ServiceError
 }
+func ArticleListWithWx(ctx *gin.Context, wxId int64, limit, offset int) (articles []*model.ArticleJoinWechat, count int64, err error) {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.ArticleListWithWx(wxId, offset, limit)
+	}
+	return nil, 0, ServiceError
+}
 
-func ArticleRank(ctx *gin.Context, startDate, endDate string, categoryId int64, offset, limit int) (articles []*model.Article, count int64, err error) {
+func ArticleRank(ctx *gin.Context, startDate, endDate string, categoryId int64, offset, limit int) (articles []*model.ArticleJoinWechat, count int64, err error) {
 	if service, ok := ctx.Value("service").(Service); ok {
 		return service.ArticleRank(startDate, endDate, categoryId, offset, limit)
 	}

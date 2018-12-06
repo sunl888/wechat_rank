@@ -36,26 +36,26 @@ func (r *rankService) Rank(wechat *model.Wechat, rank *model.Rank) error {
 	}
 	for _, article := range articles {
 		// 总文章数
-		ranks[article.WxName].ArticleCount++
+		ranks[wechat.WxName].ArticleCount++
 		// 单篇文章最高阅读数
-		if article.ReadCount > ranks[article.WxName].MaxReadCount {
-			ranks[article.WxName].MaxReadCount = article.ReadCount
+		if article.ReadCount > ranks[wechat.WxName].MaxReadCount {
+			ranks[wechat.WxName].MaxReadCount = article.ReadCount
 		}
 		// 单篇文章最高点赞数
-		if article.LikeCount > ranks[article.WxName].MaxLikeCount {
-			ranks[article.WxName].MaxLikeCount = article.LikeCount
+		if article.LikeCount > ranks[wechat.WxName].MaxLikeCount {
+			ranks[wechat.WxName].MaxLikeCount = article.LikeCount
 		}
 		// 所有文章阅读数
-		ranks[article.WxName].ReadCount += article.ReadCount
+		ranks[wechat.WxName].ReadCount += article.ReadCount
 		// 所有文章点赞数
-		ranks[article.WxName].LikeCount += article.LikeCount
+		ranks[wechat.WxName].LikeCount += article.LikeCount
 		if article.Top == 1 {
 			// 头条文章数量
-			ranks[article.WxName].TopCount++
+			ranks[wechat.WxName].TopCount++
 			// 头条文章阅读数
-			ranks[article.WxName].TopReadCount += article.ReadCount
+			ranks[wechat.WxName].TopReadCount += article.ReadCount
 			// 头条文章点赞数
-			ranks[article.WxName].TopLikeCount += article.LikeCount
+			ranks[wechat.WxName].TopLikeCount += article.LikeCount
 		}
 	}
 	// 计算每个公众号的周期内平均阅读数

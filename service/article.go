@@ -39,17 +39,14 @@ func (aServ *articleService) ArticleGrab(wechat *model.Wechat, laskWeekStartDate
 			}
 			publishedAt, _ := time.Parse(DateFormat, article.CreatedAt)
 			err := aServ.ArticleStore.ArticleCreate(&model.Article{
-				WxId:         wechat.Id,
-				Top:          article.Top,
-				Url:          article.Url,
-				Title:        article.Title,
-				WxName:       article.WxName,
-				ArticleId:    article.Id,
-				ReadCount:    article.ReadCount,
-				LikeCount:    article.LikeCount,
-				PublishedAt:  &publishedAt,
-				WxVerifyName: wechat.VerifyName,
-				WxCategoryId: wechat.CategoryId,
+				WxId:        wechat.Id,
+				Top:         article.Top,
+				Url:         article.Url,
+				Title:       article.Title,
+				ArticleId:   article.Id,
+				ReadCount:   article.ReadCount,
+				LikeCount:   article.LikeCount,
+				PublishedAt: &publishedAt,
 			})
 			if err != nil {
 				return errors.New(fmt.Sprintf("保存文章失败: %+v\n", err.Error()))

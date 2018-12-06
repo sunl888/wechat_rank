@@ -20,6 +20,7 @@ func CreateHTTPHandler(svr *server.Server) http.Handler {
 	categoryHandler := NewCategory()
 	rankHandler := NewRank()
 	authHandler := NewAuth()
+	articleHandler := NewArticle()
 
 	router := gin.Default()
 	router.Use(middleware.ServiceMiddleware(svr.Service))
@@ -32,11 +33,13 @@ func CreateHTTPHandler(svr *server.Server) http.Handler {
 	authorized := router.Group("/")
 	authorized.Use(middleware.AuthMiddleware())
 	{
+		// 退出登录
 		authorized.GET("/logout", authHandler.Logout)
 		// 添加公众号
 		authorized.POST("/wechat", wechatHandler.Create)
 		// 删除公众号
 		authorized.DELETE("/wechat/:id", wechatHandler.Delete)
+
 		// 创建分类
 		authorized.POST("/category", categoryHandler.Create)
 		// 删除分类
@@ -44,20 +47,25 @@ func CreateHTTPHandler(svr *server.Server) http.Handler {
 		// 更新分类
 		authorized.PUT("/category/:id", categoryHandler.Update)
 	}
-	// 公众号列表
-	router.GET("/wechat", wechatHandler.List)
-	// 分类下的公众号列表
+	// 所有公众号列表(好像没有用)
+	//router.GET("/wechat", wechatHandler.List)
+	// 指定分类下的公众号列表
 	router.GET("/category/:id/wechat", wechatHandler.ListByCategory)
 	// 分类列表
 	router.GET("/category", categoryHandler.List)
 	// 分类详情
 	router.GET("/category/:id", categoryHandler.Show)
+
+	// 排名
 	// 获取日期
 	router.GET("/rank/date", rankHandler.RankList)
 	// 公众号排名
 	router.GET("/rank/account", rankHandler.AccountRank)
 	// 文章排名(日期区间随意)
 	router.GET("/rank/article", rankHandler.ArticleRank)
+
+	// 指定公众号的所有文章
+	router.GET("/article", articleHandler.List)
 
 	return router
 }

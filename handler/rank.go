@@ -1,15 +1,16 @@
 package handler
 
 import (
-	"code.aliyun.com/zmdev/wechat_rank/model"
+	"code.aliyun.com/zmdev/wechat_rank/errors"
 	"code.aliyun.com/zmdev/wechat_rank/service"
 	"github.com/gin-gonic/gin"
-	"time"
+	"net/http"
 )
 
 type Rank struct {
 }
 
+/*
 type RankResp struct {
 	Id        int64     `json:"id"`
 	Name      string    `json:"name"`
@@ -41,35 +42,22 @@ type RankDetailResp struct {
 	MaxReadCount int64   `json:"max_read_count"`
 	MaxLikeCount int64   `json:"max_like_count"`
 	AvgReadCount int64   `json:"avg_read_count"`
-}
-
-type ArticleResp struct {
-	Id           int64      `json:"id"`
-	WxId         int64      `json:"wx_id"`
-	WxVerifyName string     `json:"wx_verify_name"`
-	Top          int64      `json:"top"`
-	Title        string     `json:"title"`
-	WxName       string     `json:"wx_name"`
-	Url          string     `json:"url"`
-	ReadCount    int64      `json:"read_count"`
-	LikeCount    int64      `json:"like_count"`
-	PublishedAt  *time.Time `json:"published_at"`
-}
+}*/
 
 func (r *Rank) RankList(ctx *gin.Context) {
 	l := struct {
 		Period string `json:"period" form:"period"`
 	}{}
 	if err := ctx.ShouldBind(&l); err != nil {
-		_ = ctx.Error(err)
+		ctx.JSON(http.StatusBadRequest, errors.BindError(err))
 		return
 	}
 	ranks, err := service.RankList(ctx, l.Period)
 	if err != nil {
-		_ = ctx.Error(err)
+		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
-	ctx.JSON(200, convert2RanksResp(ranks))
+	ctx.JSON(200, ranks)
 }
 
 func (r *Rank) AccountRank(ctx *gin.Context) {
@@ -79,17 +67,17 @@ func (r *Rank) AccountRank(ctx *gin.Context) {
 	}{}
 	limit, offset := getLimitAndOffset(ctx)
 	if err := ctx.ShouldBind(&l); err != nil {
-		_ = ctx.Error(err)
+		ctx.JSON(http.StatusBadRequest, errors.BindError(err))
 		return
 	}
 	ranks, count, err := service.RankDetail(ctx, l.RankId, l.CategoryId, limit, offset)
 	if err != nil {
-		_ = ctx.Error(err)
+		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
-	ctx.JSON(200, map[string]interface{}{
+	ctx.JSON(200, gin.H{
 		"count": count,
-		"ranks": convert2RankDetailsResp(ranks),
+		"ranks": ranks,
 	})
 }
 
@@ -101,20 +89,21 @@ func (r *Rank) ArticleRank(ctx *gin.Context) {
 	}{}
 	limit, offset := getLimitAndOffset(ctx)
 	if err := ctx.ShouldBind(&l); err != nil {
-		_ = ctx.Error(err)
+		ctx.JSON(http.StatusBadRequest, errors.BindError(err))
 		return
 	}
 	articles, count, err := service.ArticleRank(ctx, l.StartDate, l.EndDate, l.CategoryId, offset, limit)
 	if err != nil {
-		_ = ctx.Error(err)
+		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
-	ctx.JSON(200, map[string]interface{}{
+	ctx.JSON(200, gin.H{
 		"count": count,
-		"ranks": convert2ArticlesResp(articles),
+		"data":  articles,
 	})
 }
 
+/*
 func convert2RankDetailResp(r *model.RankJoinWechat) *RankDetailResp {
 	return &RankDetailResp{
 		Id:           r.Id,
@@ -166,30 +155,7 @@ func convert2RanksResp(rs []*model.Rank) []*RankResp {
 		ranksResp = append(ranksResp, convert2RankResp(r))
 	}
 	return ranksResp
-}
-
-func convert2ArticleResp(a *model.Article) *ArticleResp {
-	return &ArticleResp{
-		Id:           a.Id,
-		WxId:         a.WxId,
-		WxVerifyName: a.WxVerifyName,
-		Top:          a.Top,
-		Title:        a.Title,
-		WxName:       a.WxName,
-		Url:          a.Url,
-		ReadCount:    a.ReadCount,
-		LikeCount:    a.LikeCount,
-		PublishedAt:  a.PublishedAt,
-	}
-}
-
-func convert2ArticlesResp(as []*model.Article) []*ArticleResp {
-	articlesResp := make([]*ArticleResp, 0, len(as))
-	for _, r := range as {
-		articlesResp = append(articlesResp, convert2ArticleResp(r))
-	}
-	return articlesResp
-}
+}*/
 
 func NewRank() *Rank {
 	return &Rank{}
