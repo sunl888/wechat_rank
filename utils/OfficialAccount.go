@@ -37,6 +37,7 @@ type AccountResponse struct {
 type ArticleResponse struct {
 	Id        string `json:"id"`         // 微信文章ID
 	Title     string `json:"title"`      // 标题
+	Digest    string `json:"digest"`     // 描述(摘要)
 	Url       string `json:"url"`        // 微信url
 	WxName    string `json:"wx_name"`    // 微信账号
 	Top       int64  `json:"top"`        // 文章位置

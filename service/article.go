@@ -3,9 +3,7 @@ package service
 import (
 	"code.aliyun.com/zmdev/wechat_rank/model"
 	"code.aliyun.com/zmdev/wechat_rank/utils"
-	"fmt"
 	"github.com/emirpasic/gods/sets/hashset"
-	"github.com/pkg/errors"
 	"time"
 )
 
@@ -26,7 +24,7 @@ func (aServ *articleService) ArticleGrab(wechat *model.Wechat, laskWeekStartDate
 	for {
 		articles, err := aServ.OfficialAccount.GetArticles(wechat.WxName, laskWeekStartDate, laskWeekEndDate, perPage, page)
 		if err != nil {
-			return errors.New(fmt.Sprintf("获取文章失败: %+v\n", err.Error()))
+			return err
 		}
 		// 保存文章
 		for _, article := range articles {
@@ -42,6 +40,7 @@ func (aServ *articleService) ArticleGrab(wechat *model.Wechat, laskWeekStartDate
 				WxId:        wechat.Id,
 				Top:         article.Top,
 				Url:         article.Url,
+				Desc:        article.Digest,
 				Title:       article.Title,
 				ArticleId:   article.Id,
 				ReadCount:   article.ReadCount,
@@ -49,7 +48,7 @@ func (aServ *articleService) ArticleGrab(wechat *model.Wechat, laskWeekStartDate
 				PublishedAt: &publishedAt,
 			})
 			if err != nil {
-				return errors.New(fmt.Sprintf("保存文章失败: %+v\n", err.Error()))
+				return err
 			}
 		}
 		if len(articles) < perPage {

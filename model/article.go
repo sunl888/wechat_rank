@@ -5,6 +5,7 @@ import "time"
 type Article struct {
 	Id          int64      `gorm:"primary_key" json:"id"`          // ID
 	WxId        int64      `json:"wx_id"`                          // 公众号id
+	Desc        string     `json:"desc"`                           // 描述(摘要)
 	Top         int64      `json:"top"`                            // 文章位置
 	Title       string     `json:"title"`                          // 标题
 	Url         string     `json:"url"`                            // 文章url

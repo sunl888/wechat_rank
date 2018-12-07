@@ -75,7 +75,9 @@ func CreateHTTPHandler(svr *server.Server) http.Handler {
 	router.GET("/article", articleHandler.List)
 
 	// 导出公众号排名
-	router.GET("/export/account", exportHandler.ExportAccountRank)
+	router.GET("/export/account", exportHandler.AccountRank)
+	// 导出文章排名
+	router.GET("/export/article", exportHandler.ArticleRank)
 	return router
 }
 
