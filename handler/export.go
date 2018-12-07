@@ -19,7 +19,7 @@ func headers() []string {
 	}
 }
 
-func (*Export) ExportData(ctx *gin.Context) {
+func (*Export) ExportAccountRank(ctx *gin.Context) {
 	l := struct {
 		RankId     int64 `json:"rank_id" form:"rank_id"`
 		CategoryId int64 `json:"category_id" form:"category_id"`
