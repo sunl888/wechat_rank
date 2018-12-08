@@ -89,9 +89,9 @@ func SetupServer() *Server {
 		s.Conf.DB.Password,
 	)
 	if s.Debug {
-		s.Logger, err = zap.NewProduction()
-	} else {
 		s.Logger, err = zap.NewDevelopment()
+	} else {
+		s.Logger, err = zap.NewProduction()
 	}
 	if err != nil {
 		log.Fatal(err)
