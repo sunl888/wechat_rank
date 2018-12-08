@@ -3,7 +3,6 @@ package utils
 import (
 	"code.aliyun.com/zmdev/wechat_rank/errors"
 	"encoding/json"
-	"fmt"
 	"strconv"
 	"strings"
 )
@@ -69,7 +68,6 @@ func (a *OfficialAccount) GetAccount(accountName string) (*AccountResponse, erro
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(resp)
 	wechatResp := &AccountResponse{}
 	err = json.Unmarshal([]byte(resp), wechatResp)
 	if err != nil {

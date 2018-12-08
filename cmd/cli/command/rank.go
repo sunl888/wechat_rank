@@ -45,8 +45,8 @@ func NewRankCommand(svr *server.Server) cli.Command {
 				//} else {
 				//	return cli.NewExitError(fmt.Sprintf("日期不正确,type:%s,startDate:%s,endDate:%s\n", c.String("type"), startDate, endDate), 1)
 				//}
-				startDate = "2018-11-25"
-				endDate = "2018-12-01"
+				startDate = "2018-11-26"
+				endDate = "2018-12-02"
 			case "month":
 				year, month, _ := time.Now().Date()
 				thisMonth := time.Date(year, month, 1, 0, 0, 0, 0, time.Local)
