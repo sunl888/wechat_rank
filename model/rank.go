@@ -8,6 +8,7 @@ type Rank struct {
 	Period    string    `gorm:"type:enum('week','month','year')" json:"period"` // 时间段
 	StartDate string    `json:"start_date"`                                     // 开始时间
 	EndDate   string    `json:"end_date"`                                       // 结束时间
+	//IsLatest  bool      `json:"latest"`                                         // 最近的一条排行榜
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }

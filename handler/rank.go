@@ -4,6 +4,7 @@ import (
 	"code.aliyun.com/zmdev/wechat_rank/errors"
 	"code.aliyun.com/zmdev/wechat_rank/model"
 	"code.aliyun.com/zmdev/wechat_rank/service"
+	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -115,6 +116,7 @@ func (r *Rank) RankChart(ctx *gin.Context) {
 		rankIds = append(rankIds, r.Id)
 		rankMap[r.Id] = r
 	}
+	fmt.Println(rankIds)
 	rankDetailList, err := service.RankDetailListByRankIds(ctx, rankIds, wexin.Id, 0)
 	ctx.JSON(200, gin.H{
 		"data": convert2DetailListResp(rankMap, rankDetailList),
@@ -178,7 +180,7 @@ func convert2DetailListResp(rankMap map[int64]*model.Rank, details []*model.Rank
 			AvgReadCount: v.AvgReadCount,
 			Wci:          v.Wci,
 		}
-		if k > 0 {
+		if k == len(details)-1 {
 			detailListResp[k].TopReadCountGrowthRate = detailListResp[k].TopReadCount - detailListResp[k-1].TopReadCount
 			detailListResp[k].LikeCountGrowthRate = detailListResp[k].LikeCount - detailListResp[k-1].LikeCount
 			detailListResp[k].ReadCountGrowthRate = detailListResp[k].ReadCount - detailListResp[k-1].ReadCount
