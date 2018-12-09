@@ -27,6 +27,7 @@ func CreateHTTPHandler(svr *server.Server) http.Handler {
 	authHandler := NewAuth()
 	articleHandler := NewArticle()
 	exportHandler := NewExport()
+	imageHandler := NewImageProxy()
 
 	router := gin.Default()
 	router.Use(middleware.ServiceMiddleware(svr.Service))
@@ -78,6 +79,9 @@ func CreateHTTPHandler(svr *server.Server) http.Handler {
 	router.GET("/export/account", exportHandler.AccountRank)
 	// 导出文章排名
 	router.GET("/export/article", exportHandler.ArticleRank)
+	// 图片代理
+	router.GET("/image_proxy", imageHandler.Handler)
+
 	return router
 }
 

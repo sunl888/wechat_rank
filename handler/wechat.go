@@ -30,6 +30,10 @@ func (w *Wechat) ListByCategory(ctx *gin.Context) {
 	})
 }
 
+func (w *Wechat) Show(ctx *gin.Context) {
+
+}
+
 func (w *Wechat) List(ctx *gin.Context) {
 	limit, offset := getLimitAndOffset(ctx)
 	wechats, count, err := service.WechatList(ctx, limit, offset)

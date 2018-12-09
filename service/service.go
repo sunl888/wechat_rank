@@ -36,6 +36,14 @@ func WechatCreate(ctx *gin.Context, wechat *model.Wechat) error {
 	}
 	return ServiceError
 }
+
+func WechatLoad(ctx *gin.Context, wxName string) (wechat *model.Wechat, err error) {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.WechatLoad(wxName)
+	}
+	return nil, ServiceError
+}
+
 func WechatList(ctx *gin.Context, limit, offset int) (wechats []*model.Wechat, count int64, err error) {
 	if service, ok := ctx.Value("service").(Service); ok {
 		return service.WechatList(limit, offset)

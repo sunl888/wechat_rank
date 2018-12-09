@@ -13,9 +13,7 @@ var (
 
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// todo  暂时不验证登录
-		isLogin := true
-		//isLogin := check(c)
+		isLogin := check(c)
 		if !isLogin {
 			_ = c.Error(errors.Unauthorized())
 			c.Abort()
