@@ -107,7 +107,15 @@ func RankLoad(ctx *gin.Context, rankId int64) (rank *model.Rank, err error) {
 	}
 	return nil, ServiceError
 }
-func RankDetail(ctx *gin.Context, rankId, categoryId int64, limit, offset int) (ranks []*model.RankJoinWechat, count int64, err error) {
+
+func RankDetailListByRankIds(ctx *gin.Context, rankIds []int64, wxId, categoryId int64) (ranks []*model.RankDetailAndWechat, err error) {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.RankDetailListByRankIds(rankIds, wxId, categoryId)
+	}
+	return nil, err
+}
+
+func RankDetail(ctx *gin.Context, rankId, categoryId int64, limit, offset int) (ranks []*model.RankDetailAndWechat, count int64, err error) {
 	if service, ok := ctx.Value("service").(Service); ok {
 		return service.RankDetail(rankId, categoryId, limit, offset)
 	}
@@ -120,9 +128,9 @@ func ArticleList(ctx *gin.Context, startDate, endDate string, limit, offset int)
 	}
 	return nil, ServiceError
 }
-func ArticleListWithWx(ctx *gin.Context, wxId int64, limit, offset int) (articles []*model.ArticleJoinWechat, count int64, err error) {
+func ArticleListWithWx(ctx *gin.Context, wxId int64, order string, limit, offset int) (articles []*model.ArticleJoinWechat, count int64, err error) {
 	if service, ok := ctx.Value("service").(Service); ok {
-		return service.ArticleListWithWx(wxId, offset, limit)
+		return service.ArticleListWithWx(wxId, order, offset, limit)
 	}
 	return nil, 0, ServiceError
 }

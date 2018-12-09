@@ -2,6 +2,7 @@ package handler
 
 import (
 	"code.aliyun.com/zmdev/wechat_rank/errors"
+	"code.aliyun.com/zmdev/wechat_rank/model"
 	"code.aliyun.com/zmdev/wechat_rank/service"
 	"github.com/gin-gonic/gin"
 )
@@ -9,39 +10,24 @@ import (
 type Rank struct {
 }
 
-/*
-type RankResp struct {
-	Id        int64     `json:"id"`
-	Name      string    `json:"name"`
-	Period    string    `json:"period"`
-	StartDate string    `json:"start_date"`
-	EndDate   string    `json:"end_date"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+type RankDetailOfTypeListResp struct {
+	Id          int64   `json:"id"`         // ID
+	StartDate   string  `json:"start_date"` // 开始时间
+	EndDate     string  `json:"end_date"`   // 结束时间
+	CtegoryRank int     `json:"ctegory_rank"`
+	TotalRank   int     `json:"total_rank"`
+	Wci         float64 `json:"wci"`
 }
 
-type RankDetailResp struct {
-	Id           int64   `json:"id"`
-	VerifyName   string  `json:"verify_name"`
-	WxName       string  `json:"wx_name"`
-	WxNote       string  `json:"wx_note"`
-	WxLogo       string  `json:"wx_logo"`
-	WxVip        string  `json:"wx_vip"`
-	WxQrcode     string  `json:"wx_qrcode"`
-	WxNickname   string  `json:"wx_nickname"`
-	RankId       int64   `json:"rank_id"`
-	WxId         int64   `json:"wx_id"`
-	Wci          float64 `json:"wci"`
-	TopCount     int64   `json:"top_count"`
-	TopReadCount int64   `json:"top_read_count"`
-	TopLikeCount int64   `json:"top_like_count"`
-	ArticleCount int64   `json:"article_count"`
-	ReadCount    int64   `json:"read_count"`
-	LikeCount    int64   `json:"like_count"`
-	MaxReadCount int64   `json:"max_read_count"`
-	MaxLikeCount int64   `json:"max_like_count"`
-	AvgReadCount int64   `json:"avg_read_count"`
-}*/
+type RankDetailListResp struct {
+	Id           int64  `json:"id"`             // ID
+	StartDate    string `json:"start_date"`     // 开始时间
+	EndDate      string `json:"end_date"`       // 结束时间
+	TopReadCount int64  `json:"top_read_count"` // 头条阅读数
+	ReadCount    int64  `json:"read_count"`     // 总阅读数
+	LikeCount    int64  `json:"like_count"`     // 点赞数
+	AvgReadCount int64  `json:"avg_read_count"` // 平均阅读数
+}
 
 func (r *Rank) RankList(ctx *gin.Context) {
 	l := struct {
@@ -57,6 +43,76 @@ func (r *Rank) RankList(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(200, ranks)
+}
+
+func (r *Rank) RankChartWithTypes(ctx *gin.Context) {
+	l := struct {
+		WxName string `json:"wx_name" form:"wx_name"`
+	}{}
+	if err := ctx.ShouldBind(&l); err != nil {
+		_ = ctx.Error(err)
+		return
+	}
+	var rankIds []int64
+	var rankMap map[int64]*model.Rank
+	wexin, err := service.WechatLoad(ctx, l.WxName)
+	if err != nil {
+		_ = ctx.Error(err)
+		return
+	}
+	// limit = 5
+	ranks, err := service.RankList(ctx, "week")
+	if err != nil {
+		_ = ctx.Error(err)
+		return
+	}
+	rankMap = make(map[int64]*model.Rank, len(ranks))
+	for _, r := range ranks {
+		rankIds = append(rankIds, r.Id)
+		rankMap[r.Id] = r
+	}
+	// 指定分类
+	rankDetailList, err := service.RankDetailListByRankIds(ctx, rankIds, 0, wexin.CategoryId)
+	if err != nil {
+		_ = ctx.Error(err)
+		return
+	}
+	ctx.JSON(200, gin.H{
+		"data": convert2DetailOfTypeListResp(wexin, rankMap, rankDetailList),
+	})
+}
+
+func (r *Rank) RankChart(ctx *gin.Context) {
+	var (
+		rankIds []int64
+		rankMap map[int64]*model.Rank
+	)
+	l := struct {
+		WxName string `json:"wx_name" form:"wx_name"`
+	}{}
+	if err := ctx.ShouldBind(&l); err != nil {
+		_ = ctx.Error(err)
+		return
+	}
+	wexin, err := service.WechatLoad(ctx, l.WxName)
+	if err != nil {
+		_ = ctx.Error(err)
+		return
+	}
+	ranks, err := service.RankList(ctx, "week")
+	if err != nil {
+		_ = ctx.Error(err)
+		return
+	}
+	rankMap = make(map[int64]*model.Rank, len(ranks))
+	for _, r := range ranks {
+		rankIds = append(rankIds, r.Id)
+		rankMap[r.Id] = r
+	}
+	rankDetailList, err := service.RankDetailListByRankIds(ctx, rankIds, wexin.Id, 0)
+	ctx.JSON(200, gin.H{
+		"data": convert2DetailListResp(rankMap, rankDetailList),
+	})
 }
 
 func (r *Rank) AccountRank(ctx *gin.Context) {
@@ -102,59 +158,47 @@ func (r *Rank) ArticleRank(ctx *gin.Context) {
 	})
 }
 
-/*
-func convert2RankDetailResp(r *model.RankJoinWechat) *RankDetailResp {
-	return &RankDetailResp{
-		Id:           r.Id,
-		VerifyName:   r.VerifyName,
-		WxName:       r.WxName,
-		WxNote:       r.WxNote,
-		WxLogo:       r.WxLogo,
-		WxNickname:   r.WxNickname,
-		WxVip:        r.WxVip,
-		WxQrcode:     r.WxQrcode,
-		RankId:       r.RankId,
-		WxId:         r.WxId,
-		Wci:          r.Wci,
-		TopCount:     r.TopCount,
-		TopReadCount: r.TopReadCount,
-		TopLikeCount: r.TopLikeCount,
-		ArticleCount: r.ArticleCount,
-		ReadCount:    r.ReadCount,
-		LikeCount:    r.LikeCount,
-		MaxReadCount: r.MaxReadCount,
-		MaxLikeCount: r.MaxLikeCount,
-		AvgReadCount: r.AvgReadCount,
+func convert2DetailListResp(rankMap map[int64]*model.Rank, details []*model.RankDetailAndWechat) []*RankDetailListResp {
+	var detailListResp []*RankDetailListResp
+	detailListResp = make([]*RankDetailListResp, len(details))
+	for k, v := range details {
+		detailListResp[k] = &RankDetailListResp{
+			Id:           v.Id,
+			StartDate:    rankMap[v.RankId].StartDate,
+			EndDate:      rankMap[v.RankId].EndDate,
+			TopReadCount: v.TopReadCount,
+			ReadCount:    v.ReadCount,
+			LikeCount:    v.LikeCount,
+			AvgReadCount: v.AvgReadCount,
+		}
 	}
+	return detailListResp
 }
 
-func convert2RankDetailsResp(rs []*model.RankJoinWechat) []*RankDetailResp {
-	rankDetailsResp := make([]*RankDetailResp, 0, len(rs))
-	for _, r := range rs {
-		rankDetailsResp = append(rankDetailsResp, convert2RankDetailResp(r))
+func convert2DetailOfTypeListResp(weixin *model.Wechat, rankMap map[int64]*model.Rank, details []*model.RankDetailAndWechat) []*RankDetailOfTypeListResp {
+	var (
+		rankIndex      map[int64]int
+		detailListResp []*RankDetailOfTypeListResp
+	)
+	rankIndex = make(map[int64]int, len(rankMap))
+	detailListResp = make([]*RankDetailOfTypeListResp, 0, len(rankMap))
+	for _, v := range details {
+		if v.CategoryId == weixin.CategoryId {
+			rankIndex[v.RankId]++
+			if v.WxId == weixin.Id {
+				detailListResp = append(detailListResp, &RankDetailOfTypeListResp{
+					Id:          v.Id,
+					StartDate:   rankMap[v.RankId].StartDate,
+					EndDate:     rankMap[v.RankId].EndDate,
+					CtegoryRank: rankIndex[v.RankId],
+					TotalRank:   v.TotalRank,
+					Wci:         v.Wci,
+				})
+			}
+		}
 	}
-	return rankDetailsResp
+	return detailListResp
 }
-
-func convert2RankResp(r *model.Rank) *RankResp {
-	return &RankResp{
-		Id:        r.Id,
-		Name:      r.Name,
-		Period:    r.Period,
-		StartDate: r.StartDate,
-		EndDate:   r.EndDate,
-		CreatedAt: r.CreatedAt,
-		UpdatedAt: r.UpdatedAt,
-	}
-}
-
-func convert2RanksResp(rs []*model.Rank) []*RankResp {
-	ranksResp := make([]*RankResp, 0, len(rs))
-	for _, r := range rs {
-		ranksResp = append(ranksResp, convert2RankResp(r))
-	}
-	return ranksResp
-}*/
 
 func NewRank() *Rank {
 	return &Rank{}

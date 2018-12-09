@@ -81,7 +81,7 @@ func NewRankCommand(svr *server.Server) cli.Command {
 			sort.Sort(ranks)
 			for i := 0; i < ranks.Len(); i++ {
 				// 总排名
-				ranks[i].TotalRank = i + 1;
+				ranks[i].TotalRank = i + 1
 				err = service.RankDetailCreate(ranks[i])
 				if err != nil {
 					return cli.NewExitError(errors.New(fmt.Sprintf("创建排名出错: %+v", err.Error())), 4)

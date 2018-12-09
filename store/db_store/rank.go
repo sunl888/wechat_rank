@@ -9,14 +9,30 @@ type dbRank struct {
 	db *gorm.DB
 }
 
+func (d *dbRank) RankDetailListByRankIds(rankIds []int64, wxId, categoryId int64) (ranks []*model.RankDetailAndWechat, err error) {
+	ranks = make([]*model.RankDetailAndWechat, 40)
+	q := d.db.Table("rank_details r").
+		Select("r.*,w.*").
+		Joins("left join wechats w on r.wx_id = w.id").
+		Where("r.rank_id in (?) ", rankIds)
+	if categoryId != 0 {
+		q = q.Where(" w.category_id = ?", categoryId)
+	}
+	if wxId != 0 {
+		q = q.Where("r.wx_id = ?", wxId)
+	}
+	err = q.Order("r.wci desc").Find(&ranks).Error
+	return
+}
+
 func (d *dbRank) RankLoad(rankId int64) (rank *model.Rank, err error) {
 	rank = &model.Rank{}
 	err = d.db.First(&rank, "id = ?", rankId).Error
 	return
 }
 
-func (d *dbRank) RankDetail(rankId, categoryId int64, limit, offset int) (ranks []*model.RankJoinWechat, count int64, err error) {
-	ranks = make([]*model.RankJoinWechat, 0, limit)
+func (d *dbRank) RankDetail(rankId, categoryId int64, limit, offset int) (ranks []*model.RankDetailAndWechat, count int64, err error) {
+	ranks = make([]*model.RankDetailAndWechat, 0, limit)
 	q := d.db.Table("rank_details r").
 		Select("r.*,w.*").
 		Joins("left join wechats w on r.wx_id = w.id").

@@ -81,6 +81,12 @@ func CreateHTTPHandler(svr *server.Server) http.Handler {
 	router.GET("/export/article", exportHandler.ArticleRank)
 	// 图片代理
 	router.GET("/image_proxy", imageHandler.Handler)
+	// 公众号详情 param: wx_name string
+	router.GET("/wechat", wechatHandler.Show)
+	// 最近5周的各项指标排名
+	router.GET("/rank_of_weeks", rankHandler.RankChart)
+	// 最近5周的综合排名
+	router.GET("/rank_of_weeks/types", rankHandler.RankChartWithTypes)
 
 	return router
 }

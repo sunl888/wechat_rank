@@ -2,35 +2,38 @@ package handler
 
 import (
 	"code.aliyun.com/zmdev/wechat_rank/service"
+	"errors"
 	"github.com/gin-gonic/gin"
 )
 
 type Article struct {
 }
 
-/*type ArticleResp struct {
-	Id          int64      `json:"id"`
-	WxId        int64      `json:"wx_id"`
-	WxNickname  string     `json:"wx_nickname"`
-	Top         int64      `json:"top"`
-	Title       string     `json:"title"`
-	WxName      string     `json:"wx_name"`
-	Url         string     `json:"url"`
-	ReadCount   int64      `json:"read_count"`
-	LikeCount   int64      `json:"like_count"`
-	PublishedAt *time.Time `json:"published_at"`
-}*/
-
 func (*Article) List(ctx *gin.Context) {
 	l := struct {
-		WxId int64 `json:"wx_id" form:"wx_id"`
+		WxName string `json:"wx_name" form:"wx_name"`
+		Order  string `json:"order" form:"order"`
 	}{}
 	limit, offset := getLimitAndOffset(ctx)
 	if err := ctx.ShouldBind(&l); err != nil {
 		_ = ctx.Error(err)
 		return
 	}
-	articles, count, err := service.ArticleListWithWx(ctx, l.WxId, limit, offset)
+	allowOrders := map[string]string{
+		"latest": "published_at desc",
+		"read":   "read_count desc",
+		"like":   "like_count desc",
+	}
+	if _, ok := allowOrders[l.Order]; !ok {
+		_ = ctx.Error(errors.New("不允许de排序字段值"))
+		return
+	}
+	wexin, err := service.WechatLoad(ctx, l.WxName)
+	if err != nil {
+		_ = ctx.Error(err)
+		return
+	}
+	articles, count, err := service.ArticleListWithWx(ctx, wexin.Id, allowOrders[l.Order], limit, offset)
 	if err != nil {
 		_ = ctx.Error(err)
 		return
@@ -41,29 +44,6 @@ func (*Article) List(ctx *gin.Context) {
 	})
 	return
 }
-
-/*func convert2ArticleResp(a *model.ArticleJoinWechat) *ArticleResp {
-	return &ArticleResp{
-		Id:          a.Id,
-		WxId:        a.WxId,
-		Top:         a.Top,
-		Title:       a.Title,
-		WxName:      a.WxName,
-		WxNickname:  a.WxNickname,
-		Url:         a.Url,
-		ReadCount:   a.ReadCount,
-		LikeCount:   a.LikeCount,
-		PublishedAt: a.PublishedAt,
-	}
-}
-
-func convert2ArticlesResp(as []*model.ArticleJoinWechat) []*ArticleResp {
-	articlesResp := make([]*ArticleResp, 0, len(as))
-	for _, r := range as {
-		articlesResp = append(articlesResp, convert2ArticleResp(r))
-	}
-	return articlesResp
-}*/
 
 func NewArticle() *Article {
 	return &Article{}
