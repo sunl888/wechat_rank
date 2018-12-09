@@ -4,7 +4,6 @@ import (
 	"code.aliyun.com/zmdev/wechat_rank/errors"
 	"code.aliyun.com/zmdev/wechat_rank/model"
 	"code.aliyun.com/zmdev/wechat_rank/service"
-	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -116,7 +115,6 @@ func (r *Rank) RankChart(ctx *gin.Context) {
 		rankIds = append(rankIds, r.Id)
 		rankMap[r.Id] = r
 	}
-	fmt.Println(rankIds)
 	rankDetailList, err := service.RankDetailListByRankIds(ctx, rankIds, wexin.Id, 0)
 	ctx.JSON(200, gin.H{
 		"data": convert2DetailListResp(rankMap, rankDetailList),
