@@ -55,7 +55,7 @@ func (aServ *articleService) ArticleGrab(wechat *model.Wechat, laskWeekStartDate
 			break
 		}
 		if page%10 == 0 {
-			time.Sleep(1300 * time.Millisecond)
+			time.Sleep(1100 * time.Millisecond)
 		}
 		page++
 	}

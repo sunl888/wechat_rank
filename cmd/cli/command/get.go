@@ -27,7 +27,7 @@ func NewGetCommand(svr *server.Server) cli.Command {
 			//laskWeekEndDate := now.AddDate(0, 0, -1).Format(DATE_FORMAT)
 			// TODO date
 			laskWeekStartDate := "2018-11-25"
-			laskWeekEndDate := "2018-12-07"
+			laskWeekEndDate := "2018-12-10"
 			wechats, count, err := service.WechatList(0, 0)
 			if err != nil {
 				log.Error(fmt.Sprintf("创建排名出错: %+v", err.Error()))
@@ -40,7 +40,7 @@ func NewGetCommand(svr *server.Server) cli.Command {
 					return cli.NewExitError(err, 2)
 				}
 				if (i+1)%10 == 0 {
-					time.Sleep(1300 * time.Millisecond)
+					time.Sleep(1100 * time.Millisecond)
 				}
 			}
 			return nil

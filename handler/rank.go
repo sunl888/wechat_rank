@@ -20,13 +20,19 @@ type RankDetailOfTypeListResp struct {
 }
 
 type RankDetailListResp struct {
-	Id           int64  `json:"id"`             // ID
-	StartDate    string `json:"start_date"`     // 开始时间
-	EndDate      string `json:"end_date"`       // 结束时间
-	TopReadCount int64  `json:"top_read_count"` // 头条阅读数
-	ReadCount    int64  `json:"read_count"`     // 总阅读数
-	LikeCount    int64  `json:"like_count"`     // 点赞数
-	AvgReadCount int64  `json:"avg_read_count"` // 平均阅读数
+	Id                     int64   `json:"id"`             // ID
+	StartDate              string  `json:"start_date"`     // 开始时间
+	EndDate                string  `json:"end_date"`       // 结束时间
+	TopReadCount           int64   `json:"top_read_count"` // 头条阅读数
+	TopReadCountGrowthRate int64   `json:"top_read_count_growth_rate"`
+	ReadCount              int64   `json:"read_count"` // 总阅读数
+	ReadCountGrowthRate    int64   `json:"read_count_growth_rate"`
+	LikeCount              int64   `json:"like_count"` // 点赞数
+	LikeCountGrowthRate    int64   `json:"like_count_growth_rate"`
+	AvgReadCount           int64   `json:"avg_read_count"` // 平均阅读数
+	AvgReadCountGrowthRate int64   `json:"avg_read_count_growth_rate"`
+	Wci                    float64 `json:"wci"`
+	WciGrowthRate          float64 `json:"wci_growth_rate"`
 }
 
 func (r *Rank) RankList(ctx *gin.Context) {
@@ -170,6 +176,14 @@ func convert2DetailListResp(rankMap map[int64]*model.Rank, details []*model.Rank
 			ReadCount:    v.ReadCount,
 			LikeCount:    v.LikeCount,
 			AvgReadCount: v.AvgReadCount,
+			Wci:          v.Wci,
+		}
+		if k > 0 {
+			detailListResp[k].TopReadCountGrowthRate = detailListResp[k].TopReadCount - detailListResp[k-1].TopReadCount
+			detailListResp[k].LikeCountGrowthRate = detailListResp[k].LikeCount - detailListResp[k-1].LikeCount
+			detailListResp[k].ReadCountGrowthRate = detailListResp[k].ReadCount - detailListResp[k-1].ReadCount
+			detailListResp[k].AvgReadCountGrowthRate = detailListResp[k].AvgReadCount - detailListResp[k-1].AvgReadCount
+			detailListResp[k].WciGrowthRate = detailListResp[k].Wci - detailListResp[k-1].Wci
 		}
 	}
 	return detailListResp
