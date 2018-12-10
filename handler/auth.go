@@ -27,13 +27,13 @@ func (a *Auth) Login(c *gin.Context) {
 		_ = c.Error(err)
 		return
 	}
-	setAuthCookie(c, resp.Id, resp.UserId)
+	setAuthCookie(c, resp.Id, resp.UserId, int(resp.ExpiredAt.Second()))
 	c.JSON(204, resp)
 }
 
-func setAuthCookie(c *gin.Context, ticketId string, userId int64) {
-	c.SetCookie("ticket_id", ticketId, 3600*12*7, "", "", false, true)
-	c.SetCookie("user_id", strconv.FormatInt(userId, 10), 3600*12*7, "", "", false, false)
+func setAuthCookie(c *gin.Context, ticketId string, userId int64, maxAge int) {
+	c.SetCookie("ticket_id", ticketId, maxAge, "", "", false, true)
+	c.SetCookie("user_id", strconv.FormatInt(userId, 10), maxAge, "", "", false, false)
 }
 
 func removeAuthCookie(c *gin.Context) {
