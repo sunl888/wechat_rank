@@ -5,8 +5,8 @@ import (
 	"code.aliyun.com/zmdev/wechat_rank/model"
 	"code.aliyun.com/zmdev/wechat_rank/service"
 	"github.com/gin-gonic/gin"
-	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -28,16 +28,73 @@ type WechatResp struct {
 	UpdatedAt    time.Time `json:"updated_at"`
 }
 
+func (w *Wechat) Search(ctx *gin.Context) {
+	var (
+		sType   string
+		wechats []*model.WechatAndCategory
+		count   int64
+		err     error
+	)
+	sType = strings.Trim(ctx.Param("type"), " ")
+	l := struct {
+		Keyword    string `json:"keyword" form:"keyword"`
+		Order      string `json:"order" form:"order"`
+		CategoryId int64  `json:"category_id" form:"category_id"`
+	}{}
+	if err = ctx.ShouldBind(&l); err != nil {
+		_ = ctx.Error(err)
+		return
+	}
+	limit, offset := getLimitAndOffset(ctx)
+	switch sType {
+	case "article":
+		allowOrders := map[string]string{
+			"latest": "published_at desc",
+			"read":   "read_count desc",
+			"like":   "like_count desc",
+		}
+		if l.Order == "" {
+			l.Order = allowOrders["latest"]
+		} else if _, ok := allowOrders[l.Order]; !ok {
+			_ = ctx.Error(errors.BadRequest("不允许de排序字段值", nil))
+			return
+		}
+		l.Order = allowOrders[l.Order]
+		articles, count, err := service.ArticleSearch(ctx, l.Keyword, l.Order, l.CategoryId, offset, limit)
+		if err != nil {
+			_ = ctx.Error(err)
+			return
+		}
+		ctx.JSON(200, gin.H{
+			"count": count,
+			"data":  articles,
+		})
+	case "wechat":
+		wechats, count, err = service.WechatSearch(ctx, l.Keyword, limit, offset)
+		if err != nil {
+			_ = ctx.Error(err)
+			return
+		}
+		ctx.JSON(200, gin.H{
+			"count": count,
+			"data":  convert2WechatsResp(wechats),
+		})
+	default:
+		_ = ctx.Error(errors.BadRequest("不允许的搜索类型", nil))
+		return
+	}
+}
+
 func (w *Wechat) ListByCategory(ctx *gin.Context) {
 	cId, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errors.BadRequest("id 格式不正确", nil))
+		_ = ctx.Error(errors.BadRequest("id 格式不正确", nil))
 		return
 	}
 	limit, offset := getLimitAndOffset(ctx)
 	wechats, count, err := service.WechatListByCategory(ctx, cId, limit, offset)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		_ = ctx.Error(err)
 		return
 	}
 	ctx.JSON(200, gin.H{
@@ -130,6 +187,27 @@ func convert2WechatResp(wechat *model.Wechat, category *model.Category) *WechatR
 		CreatedAt:    wechat.CreatedAt,
 		UpdatedAt:    wechat.UpdatedAt,
 	}
+}
+
+func convert2WechatsResp(wechats []*model.WechatAndCategory) [] *WechatResp {
+	wechatList := make([]*WechatResp, 0, len(wechats))
+	for _, wechat := range wechats {
+		wechatList = append(wechatList, &WechatResp{
+			Id:           wechat.Id,
+			VerifyName:   wechat.VerifyName,
+			WxName:       wechat.WxName,
+			WxNote:       wechat.WxNote,
+			WxNickname:   wechat.WxNickname,
+			WxLogo:       wechat.WxLogo,
+			WxVip:        wechat.WxVip,
+			WxQrcode:     wechat.WxQrcode,
+			CategoryId:   wechat.CategoryId,
+			CategoryName: wechat.CategoryName,
+			CreatedAt:    wechat.CreatedAt,
+			UpdatedAt:    wechat.UpdatedAt,
+		})
+	}
+	return wechatList
 }
 
 func NewWechat() *Wechat {

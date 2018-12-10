@@ -50,6 +50,12 @@ func WechatList(ctx *gin.Context, limit, offset int) (wechats []*model.Wechat, c
 	}
 	return nil, 0, ServiceError
 }
+func WechatSearch(ctx *gin.Context, keyword string, limit, offset int) (wechats []*model.WechatAndCategory, count int64, err error) {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.WechatSearch(keyword, limit, offset)
+	}
+	return nil, 0, ServiceError
+}
 
 func WechatDelete(ctx *gin.Context, id int64) error {
 	if service, ok := ctx.Value("service").(Service); ok {
@@ -127,6 +133,12 @@ func ArticleList(ctx *gin.Context, startDate, endDate string, limit, offset int)
 		return service.ArticleList(startDate, endDate, offset, limit)
 	}
 	return nil, ServiceError
+}
+func ArticleSearch(ctx *gin.Context, keyword string, order string, categoryId int64, offset, limit int) (articles []*model.ArticleJoinWechat, count int64, err error) {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.ArticleSearch(keyword, order, categoryId, offset, limit)
+	}
+	return nil, 0, ServiceError
 }
 func ArticleGrab(ctx *gin.Context, wechat *model.Wechat, startDate, endDate string) error {
 	if service, ok := ctx.Value("service").(Service); ok {

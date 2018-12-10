@@ -17,6 +17,10 @@ type Wechat struct {
 	UpdatedAt        time.Time `json:"updated_at"`
 	LastGetArticleAt string    `json:"last_get_article_at"` // 最近一次获取文章时间
 }
+type WechatAndCategory struct {
+	*Wechat
+	CategoryName string `json:"category_name"`
+}
 
 type WechatStore interface {
 	WechatLoad(wechatName string) (wechat *Wechat, err error)
@@ -25,6 +29,7 @@ type WechatStore interface {
 	WechatUpdate(wechat *Wechat) error
 	WechatListByCategory(cId int64, limit, offset int) (wechats []*Wechat, count int64, err error)
 	WechatDelete(id int64) error
+	WechatSearch(keyword string, limit, offset int) (wechats []*WechatAndCategory, count int64, err error)
 }
 
 type WechatService interface {

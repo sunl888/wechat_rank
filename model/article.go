@@ -32,6 +32,7 @@ type ArticleStore interface {
 	// 通过微信id查找文章列表  不需要日期
 	ArticleListWithWx(wxId int64, order string, offset, limit int) (articles []*ArticleJoinWechat, count int64, err error)
 	ArticleRank(startDate, endDate string, categoryId int64, offset, limit int) ([]*ArticleJoinWechat, int64, error)
+	ArticleSearch(keyword string, order string, categoryId int64, offset, limit int) (articles []*ArticleJoinWechat, count int64, err error)
 }
 
 type ArticleService interface {

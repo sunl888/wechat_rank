@@ -90,6 +90,8 @@ func CreateHTTPHandler(svr *server.Server) http.Handler {
 	// 最近5周的综合排名
 	router.GET("/rank_of_weeks/types", rankHandler.RankChartWithTypes)
 
+	// 搜索公众号或者文章 type: wechat,article
+	router.GET("/search/:type", wechatHandler.Search)
 	return router
 }
 
