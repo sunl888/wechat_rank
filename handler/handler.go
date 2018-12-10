@@ -74,6 +74,8 @@ func CreateHTTPHandler(svr *server.Server) http.Handler {
 
 	// 指定公众号的所有文章
 	router.GET("/article", articleHandler.List)
+	// 手动抓取文章(可以指定公众号 wx_name)
+	router.GET("/article/glab", articleHandler.Glab)
 
 	// 导出公众号排名
 	router.GET("/export/account", exportHandler.AccountRank)

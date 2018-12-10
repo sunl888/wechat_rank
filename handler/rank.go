@@ -4,6 +4,7 @@ import (
 	"code.aliyun.com/zmdev/wechat_rank/errors"
 	"code.aliyun.com/zmdev/wechat_rank/model"
 	"code.aliyun.com/zmdev/wechat_rank/service"
+	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -112,6 +113,7 @@ func (r *Rank) RankChart(ctx *gin.Context) {
 	}
 	rankMap = make(map[int64]*model.Rank, len(ranks))
 	for _, r := range ranks {
+		fmt.Println(r.Id)
 		rankIds = append(rankIds, r.Id)
 		rankMap[r.Id] = r
 	}
@@ -178,13 +180,13 @@ func convert2DetailListResp(rankMap map[int64]*model.Rank, details []*model.Rank
 			AvgReadCount: v.AvgReadCount,
 			Wci:          v.Wci,
 		}
-		if k == len(details)-1 {
-			detailListResp[k].TopReadCountGrowthRate = detailListResp[k].TopReadCount - detailListResp[k-1].TopReadCount
-			detailListResp[k].LikeCountGrowthRate = detailListResp[k].LikeCount - detailListResp[k-1].LikeCount
-			detailListResp[k].ReadCountGrowthRate = detailListResp[k].ReadCount - detailListResp[k-1].ReadCount
-			detailListResp[k].AvgReadCountGrowthRate = detailListResp[k].AvgReadCount - detailListResp[k-1].AvgReadCount
-			detailListResp[k].WciGrowthRate = detailListResp[k].Wci - detailListResp[k-1].Wci
-		}
+	}
+	if len(detailListResp) > 1 {
+		detailListResp[0].TopReadCountGrowthRate = detailListResp[0].TopReadCount - detailListResp[1].TopReadCount
+		detailListResp[0].LikeCountGrowthRate = detailListResp[0].LikeCount - detailListResp[1].LikeCount
+		detailListResp[0].ReadCountGrowthRate = detailListResp[0].ReadCount - detailListResp[1].ReadCount
+		detailListResp[0].AvgReadCountGrowthRate = detailListResp[0].AvgReadCount - detailListResp[1].AvgReadCount
+		detailListResp[0].WciGrowthRate = detailListResp[0].Wci - detailListResp[1].Wci
 	}
 	return detailListResp
 }

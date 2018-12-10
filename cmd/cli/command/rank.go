@@ -53,6 +53,8 @@ func NewRankCommand(svr *server.Server) cli.Command {
 				thisMonth := time.Date(year, month, 1, 0, 0, 0, 0, time.Local)
 				startDate = thisMonth.AddDate(0, -1, 0).Format(DATE_FORMAT)
 				endDate = thisMonth.AddDate(0, 0, -1).Format(DATE_FORMAT)
+				//startDate = "2018-11-01"
+				//endDate = "2018-11-30"
 			case "year":
 				year, _, _ := time.Now().Date()
 				t := time.Date(year-1, 1, 1, 0, 0, 0, 0, time.Local)

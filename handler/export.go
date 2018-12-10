@@ -82,10 +82,10 @@ func (*Export) ArticleRank(ctx *gin.Context) {
 			articles[i].Title,      // 标题
 			articles[i].Desc,       // 摘要
 			articles[i].Url,        // Url
-			articles[i].PublishedAt.Format(service.DateFormat), // 发布时间
-			fmt.Sprintf("%d", articles[i].ReadCount),           // 阅读数
-			fmt.Sprintf("%d", articles[i].LikeCount),           // 点赞数
-			fmt.Sprintf("%d", articles[i].Top),                 // 文章序号
+			articles[i].PublishedAt.Format("2006-01-02 15:04:05"), // 发布时间
+			fmt.Sprintf("%d", articles[i].ReadCount),              // 阅读数
+			fmt.Sprintf("%d", articles[i].LikeCount),              // 点赞数
+			fmt.Sprintf("%d", articles[i].Top),                    // 文章序号
 		})
 	}
 	_ = streamFile.WriteAll(records)

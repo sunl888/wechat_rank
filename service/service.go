@@ -128,6 +128,12 @@ func ArticleList(ctx *gin.Context, startDate, endDate string, limit, offset int)
 	}
 	return nil, ServiceError
 }
+func ArticleGrab(ctx *gin.Context, wechat *model.Wechat, startDate, endDate string) error {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.ArticleGrab(wechat, startDate, endDate)
+	}
+	return ServiceError
+}
 func ArticleListWithWx(ctx *gin.Context, wxId int64, order string, limit, offset int) (articles []*model.ArticleJoinWechat, count int64, err error) {
 	if service, ok := ctx.Value("service").(Service); ok {
 		return service.ArticleListWithWx(wxId, order, offset, limit)

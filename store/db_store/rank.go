@@ -13,15 +13,15 @@ func (d *dbRank) RankDetailListByRankIds(rankIds []int64, wxId, categoryId int64
 	ranks = make([]*model.RankDetailAndWechat, 40)
 	q := d.db.Table("rank_details r").
 		Select("r.*,w.*").
-		Joins("left join wechats w on r.wx_id = w.id").
-		Where("r.rank_id in (?) ", rankIds)
-	if categoryId != 0 {
-		q = q.Where(" w.category_id = ?", categoryId)
-	}
+		Joins("left join wechats w on r.wx_id = w.id")
 	if wxId != 0 {
-		q = q.Where("r.wx_id = ?", wxId)
+		q = q.Where("r.wx_id = ? ", wxId)
 	}
-	err = q.Order("r.wci desc").Find(&ranks).Error
+	if categoryId != 0 {
+		q = q.Where("w.category_id = ? ", categoryId)
+	}
+	q = q.Where("r.rank_id in (?)) order by field(r.rank_id, ?", rankIds, rankIds)
+	err = q.Find(&ranks).Error
 	return
 }
 
@@ -51,7 +51,7 @@ func (d *dbRank) RankDetail(rankId, categoryId int64, limit, offset int) (ranks 
 
 func (d *dbRank) RankList(period string) (ranks []*model.Rank, err error) {
 	ranks = make([]*model.Rank, 0, 5)
-	err = d.db.Find(&ranks, "period = ?", period).Order("id desc").Limit(5).Error
+	err = d.db.Order("id desc").Limit(5).Find(&ranks, "period = ?", period).Error
 	return
 }
 

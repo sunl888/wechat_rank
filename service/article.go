@@ -1,9 +1,12 @@
 package service
 
 import (
+	"code.aliyun.com/zmdev/wechat_rank/errors"
 	"code.aliyun.com/zmdev/wechat_rank/model"
 	"code.aliyun.com/zmdev/wechat_rank/utils"
+	"fmt"
 	"github.com/emirpasic/gods/sets/hashset"
+	"log"
 	"time"
 )
 
@@ -13,16 +16,31 @@ type articleService struct {
 	*utils.OfficialAccount
 }
 
-const DateFormat = "2006-01-02 15:04:05"
-const perPage = 50
+const perPage = 50         // 每页显示多少条
+const MaxRequestCount = 50 // 每个公众号最多抓取50次
 
 // 抓取文章
-func (aServ *articleService) ArticleGrab(wechat *model.Wechat, laskWeekStartDate, laskWeekEndDate string) error {
-	// 获取每个公众号最近的文章列表
+// 每个月最多发布 普通账号 8*31=248  超级账号 20*8*31=4960篇文章
+func (aServ *articleService) ArticleGrab(wechat *model.Wechat, startDate, endDate string) error {
+	// 防止重复获取文章
 	articleIds := hashset.New()
 	page := 1
+	requestCount := 1
+	sDate, _ := time.Parse("2006-01-02", startDate)
+	eDate, _ := time.Parse("2006-01-02", endDate)
+	//
+	if sDate.Sub(eDate).Hours() < 24 {
+		log.Println("开始日期和结束日期一致")
+		//return errors.BadRequest("开始日期和结束日期一致", nil)
+		return nil
+	}
 	for {
-		articles, err := aServ.OfficialAccount.GetArticles(wechat.WxName, laskWeekStartDate, laskWeekEndDate, perPage, page)
+		if requestCount > MaxRequestCount {
+			return errors.QingboError("超过最大请求次数",
+				fmt.Sprintf("%s 公众号超过最大请求次数",
+					wechat.WxName), 400, 400)
+		}
+		articles, err := aServ.OfficialAccount.GetArticles(wechat.WxName, sDate.String(), eDate.String(), perPage, page)
 		if err != nil {
 			return err
 		}
@@ -35,7 +53,7 @@ func (aServ *articleService) ArticleGrab(wechat *model.Wechat, laskWeekStartDate
 			} else {
 				articleIds.Add(article.Id)
 			}
-			publishedAt, _ := time.Parse(DateFormat, article.CreatedAt)
+			publishedAt, _ := time.Parse("2006-01-02 15:04:05", article.CreatedAt)
 			err := aServ.ArticleStore.ArticleCreate(&model.Article{
 				WxId:        wechat.Id,
 				Top:         article.Top,
@@ -58,6 +76,13 @@ func (aServ *articleService) ArticleGrab(wechat *model.Wechat, laskWeekStartDate
 			time.Sleep(1100 * time.Millisecond)
 		}
 		page++
+		requestCount++
+	}
+	// 设置该公众号最近一次获取文章的时间
+	wechat.LastGetArticleAt = eDate.String()
+	err := aServ.WechatStore.WechatUpdate(wechat)
+	if err != nil {
+		return err
 	}
 	return nil
 }
