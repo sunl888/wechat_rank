@@ -123,7 +123,7 @@ func setupService(serv *Server) service.Service {
 		uint8(runtime.NumCPU()),
 		32,
 	)
-	tSvc := service.NewTicketService(s, time.Duration(serv.Conf.Ticket.TTL)*time.Microsecond)
+	tSvc := service.NewTicketService(s, time.Duration(serv.Conf.Ticket.TTL)*time.Second)
 	return service.NewService(
 		service.NewWechatService(s, officialAccount),
 		service.NewCategoryService(s),

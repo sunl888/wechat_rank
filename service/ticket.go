@@ -34,7 +34,7 @@ func (tSvc *ticketService) TicketGen(userId int64) (*model.Ticket, error) {
 	ticket := &model.Ticket{
 		Id:        hex.EncodeToString(u4.Bytes()),
 		UserId:    userId,
-		ExpiredAt: now.Add(tSvc.ticketTTL * time.Second),
+		ExpiredAt: now.Add(tSvc.ticketTTL),
 		CreatedAt: now,
 	}
 	err := tSvc.ts.TicketCreate(ticket)

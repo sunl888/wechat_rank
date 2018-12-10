@@ -20,4 +20,4 @@ qingbo:
 
 ticket:
   driver: "redis"
-  ttl: 3000
+  ttl: 2592000

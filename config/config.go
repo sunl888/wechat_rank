@@ -28,7 +28,7 @@ type QingboConfig struct {
 }
 type TicketConfig struct {
 	Driver string `json:"driver"` // ticket 使用的驱动 只支持 redis 和 database
-	TTL    int64  `json:"ttl"`    // ticket 的过期时间 （毫秒）
+	TTL    int64  `json:"ttl"`    // ticket 的过期时间 （秒）
 }
 type Config struct {
 	EnvVarPrefix string         `json:"env-var-prefix"`
