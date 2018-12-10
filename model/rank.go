@@ -8,6 +8,7 @@ type Rank struct {
 	Period    string    `gorm:"type:enum('week','month','year')" json:"period"` // 时间段
 	StartDate string    `json:"start_date"`                                     // 开始时间
 	EndDate   string    `json:"end_date"`                                       // 结束时间
+	//IsLatest  bool      `json:"latest"`                                         // 最近的一条排行榜
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -31,11 +32,11 @@ type RankDetail struct {
 	TotalRank    int     `json:"total_rank"`                               // 总排名
 }
 
-// transformer
-type RankJoinWechat struct {
+type RankDetailAndWechat struct {
 	Id         int64  `json:"id"`
 	WxName     string `json:"wx_name"`
 	WxNickname string `json:"wx_nickname"`
+	CategoryId int64  `json:"category_id"`
 	WxLogo     string `json:"wx_logo"`
 	WxVip      string `json:"wx_vip"`
 	WxQrcode   string `json:"wx_qrcode"`
@@ -47,7 +48,8 @@ type RankStore interface {
 	RankDetailCreate(detail *RankDetail) error
 	RankList(period string) (ranks []*Rank, err error)
 	RankLoad(rankId int64) (rank *Rank, err error)
-	RankDetail(rankId, categoryId int64, limit, offset int) (ranks []*RankJoinWechat, count int64, err error)
+	RankDetail(rankId, categoryId int64, limit, offset int) (ranks []*RankDetailAndWechat, count int64, err error)
+	RankDetailListByRankIds(rankIds []int64, wxId, categoryId int64) (ranks []*RankDetailAndWechat, err error)
 }
 
 type RankService interface {

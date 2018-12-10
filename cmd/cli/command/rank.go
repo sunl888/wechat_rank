@@ -45,13 +45,16 @@ func NewRankCommand(svr *server.Server) cli.Command {
 				//} else {
 				//	return cli.NewExitError(fmt.Sprintf("日期不正确,type:%s,startDate:%s,endDate:%s\n", c.String("type"), startDate, endDate), 1)
 				//}
-				startDate = "2018-11-25"
-				endDate = "2018-12-01"
+				// 2018-11-26 2018-12-02
+				startDate = "2018-12-03"
+				endDate = "2018-12-09"
 			case "month":
 				year, month, _ := time.Now().Date()
 				thisMonth := time.Date(year, month, 1, 0, 0, 0, 0, time.Local)
 				startDate = thisMonth.AddDate(0, -1, 0).Format(DATE_FORMAT)
 				endDate = thisMonth.AddDate(0, 0, -1).Format(DATE_FORMAT)
+				//startDate = "2018-11-01"
+				//endDate = "2018-11-30"
 			case "year":
 				year, _, _ := time.Now().Date()
 				t := time.Date(year-1, 1, 1, 0, 0, 0, 0, time.Local)
@@ -81,7 +84,7 @@ func NewRankCommand(svr *server.Server) cli.Command {
 			sort.Sort(ranks)
 			for i := 0; i < ranks.Len(); i++ {
 				// 总排名
-				ranks[i].TotalRank = i + 1;
+				ranks[i].TotalRank = i + 1
 				err = service.RankDetailCreate(ranks[i])
 				if err != nil {
 					return cli.NewExitError(errors.New(fmt.Sprintf("创建排名出错: %+v", err.Error())), 4)

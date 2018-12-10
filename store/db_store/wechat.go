@@ -32,7 +32,6 @@ func (w *dbWechat) WechatListByCategory(cId int64, limit, offset int) (wechats [
 }
 
 func (w *dbWechat) WechatDelete(id int64) error {
-	// todo 删除关联表的相关记录
 	err := w.db.Delete(model.Article{}, "wx_id = ?", id).Error
 	if err != nil {
 		return err

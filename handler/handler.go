@@ -27,6 +27,7 @@ func CreateHTTPHandler(svr *server.Server) http.Handler {
 	authHandler := NewAuth()
 	articleHandler := NewArticle()
 	exportHandler := NewExport()
+	imageHandler := NewImageProxy()
 
 	router := gin.Default()
 	router.Use(middleware.ServiceMiddleware(svr.Service))
@@ -73,11 +74,22 @@ func CreateHTTPHandler(svr *server.Server) http.Handler {
 
 	// 指定公众号的所有文章
 	router.GET("/article", articleHandler.List)
+	// 手动抓取文章(可以指定公众号 wx_name)
+	router.GET("/article/glab", articleHandler.Glab)
 
 	// 导出公众号排名
 	router.GET("/export/account", exportHandler.AccountRank)
 	// 导出文章排名
 	router.GET("/export/article", exportHandler.ArticleRank)
+	// 图片代理
+	router.GET("/image_proxy", imageHandler.Handler)
+	// 公众号详情 param: wx_name string
+	router.GET("/wechat", wechatHandler.Show)
+	// 最近5周的各项指标排名
+	router.GET("/rank_of_weeks", rankHandler.RankChart)
+	// 最近5周的综合排名
+	router.GET("/rank_of_weeks/types", rankHandler.RankChartWithTypes)
+
 	return router
 }
 

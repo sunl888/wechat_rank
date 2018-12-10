@@ -24,7 +24,7 @@ func (a *Auth) Login(c *gin.Context) {
 	}
 	resp, err := service.UserLogin(c, strings.TrimSpace(req.Account), strings.TrimSpace(req.Password))
 	if err != nil {
-		_ = c.Error(errors.ErrPassword())
+		_ = c.Error(err)
 		return
 	}
 	setAuthCookie(c, resp.Id, resp.UserId)
