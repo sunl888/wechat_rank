@@ -1,4 +1,4 @@
-package utils
+package qingbo
 
 import (
 	"code.aliyun.com/zmdev/wechat_rank/errors"
@@ -12,7 +12,7 @@ var (
 	PerPage = 50
 )
 
-type OfficialAccount struct {
+type WxAccount struct {
 	*QingboClient
 }
 
@@ -63,7 +63,7 @@ type ErrorResponse struct {
 	Status  int
 }
 
-func (a *OfficialAccount) GetAccount(accountName string) (*AccountResponse, error) {
+func (a *WxAccount) GetAccount(accountName string) (*AccountResponse, error) {
 	resp, err := a.QingboClient.get("users", "wx_name="+accountName, "weixin")
 	if err != nil {
 		return nil, err
@@ -84,7 +84,7 @@ func (a *OfficialAccount) GetAccount(accountName string) (*AccountResponse, erro
 	return wechatResp, nil
 }
 
-func (a *OfficialAccount) GetArticles(wxName, startDate, endDate string, perPage, page int) ([]*ArticleResponse, error) {
+func (a *WxAccount) GetArticles(wxName, startDate, endDate string, perPage, page int) ([]*ArticleResponse, error) {
 	sb := strings.Builder{}
 	if wxName != "" {
 		sb.WriteString("wx_name=" + wxName)
@@ -130,7 +130,7 @@ func (a *OfficialAccount) GetArticles(wxName, startDate, endDate string, perPage
 }
 
 //http://api.gsdata.cn/weixin/v1/users/rank-days
-func (a *OfficialAccount) GetRankDays(wxName, startDate string) (*RankDayResponse, error) {
+func (a *WxAccount) GetRankDays(wxName, startDate string) (*RankDayResponse, error) {
 	sb := strings.Builder{}
 	if wxName != "" {
 		sb.WriteString("wx_name=" + wxName)
@@ -158,6 +158,6 @@ func (a *OfficialAccount) GetRankDays(wxName, startDate string) (*RankDayRespons
 	return rankDayResp, nil
 }
 
-func NewOfficialAccount(client *QingboClient) *OfficialAccount {
-	return &OfficialAccount{client}
+func NewWxAccount(client *QingboClient) *WxAccount {
+	return &WxAccount{client}
 }

@@ -4,22 +4,20 @@ import (
 	"code.aliyun.com/zmdev/wechat_rank/config"
 	"code.aliyun.com/zmdev/wechat_rank/model"
 	"code.aliyun.com/zmdev/wechat_rank/pkg/hasher"
+	"code.aliyun.com/zmdev/wechat_rank/pkg/qingbo"
 	"code.aliyun.com/zmdev/wechat_rank/service"
 	"code.aliyun.com/zmdev/wechat_rank/store"
 	"code.aliyun.com/zmdev/wechat_rank/store/db_store"
 	"code.aliyun.com/zmdev/wechat_rank/store/redis_store"
-	"code.aliyun.com/zmdev/wechat_rank/utils"
 	"fmt"
 	"github.com/go-redis/redis"
+	_ "github.com/go-sql-driver/mysql" // 引入数据库驱动注册及初始化
 	"github.com/jinzhu/gorm"
-	"path"
-	"runtime"
-
-	// 引入数据库驱动注册及初始化
-	_ "github.com/go-sql-driver/mysql"
 	"go.uber.org/zap"
 	"log"
 	"os"
+	"path"
+	"runtime"
 	"time"
 )
 
@@ -113,8 +111,8 @@ func setupStore(s *Server) store.Store {
 }
 
 func setupService(serv *Server) service.Service {
-	qingboClient := utils.NewQingboClient(serv.Conf.Qingbo.AppKey, serv.Conf.Qingbo.AppId)
-	officialAccount := utils.NewOfficialAccount(qingboClient)
+	qingboClient := qingbo.NewQingboClient(serv.Conf.Qingbo.AppKey, serv.Conf.Qingbo.AppId)
+	officialAccount := qingbo.NewWxAccount(qingboClient)
 	s := setupStore(serv)
 	h := hasher.NewArgon2Hasher(
 		[]byte(serv.Conf.AppSalt),

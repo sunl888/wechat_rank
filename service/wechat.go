@@ -3,13 +3,13 @@ package service
 import (
 	"code.aliyun.com/zmdev/wechat_rank/errors"
 	"code.aliyun.com/zmdev/wechat_rank/model"
-	"code.aliyun.com/zmdev/wechat_rank/utils"
+	"code.aliyun.com/zmdev/wechat_rank/pkg/qingbo"
 	"github.com/jinzhu/gorm"
 )
 
 type wechatService struct {
 	model.WechatStore
-	client *utils.OfficialAccount
+	client *qingbo.WxAccount
 }
 
 func (w *wechatService) WechatCreate(wechat *model.Wechat) error {
@@ -37,7 +37,7 @@ func (w *wechatService) WechatCreate(wechat *model.Wechat) error {
 	return nil
 }
 
-func convert2WechatModel(account *utils.AccountData, wechat *model.Wechat) {
+func convert2WechatModel(account *qingbo.AccountData, wechat *model.Wechat) {
 	wechat.WxName = account.WxName
 	wechat.VerifyName = account.VerifyName
 	wechat.WxLogo = account.WxLogo
@@ -47,6 +47,6 @@ func convert2WechatModel(account *utils.AccountData, wechat *model.Wechat) {
 	wechat.WxNickname = account.WxNickname
 }
 
-func NewWechatService(ws model.WechatStore, client *utils.OfficialAccount) model.WechatService {
+func NewWechatService(ws model.WechatStore, client *qingbo.WxAccount) model.WechatService {
 	return &wechatService{ws, client}
 }

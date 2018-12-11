@@ -3,7 +3,7 @@ package service
 import (
 	"code.aliyun.com/zmdev/wechat_rank/errors"
 	"code.aliyun.com/zmdev/wechat_rank/model"
-	"code.aliyun.com/zmdev/wechat_rank/utils"
+	"code.aliyun.com/zmdev/wechat_rank/pkg/qingbo"
 	"fmt"
 	"github.com/emirpasic/gods/sets/hashset"
 	"log"
@@ -13,7 +13,7 @@ import (
 type articleService struct {
 	model.ArticleStore
 	model.WechatStore
-	*utils.OfficialAccount
+	*qingbo.WxAccount
 }
 
 const perPage = 50         // 每页显示多少条
@@ -40,7 +40,7 @@ func (aServ *articleService) ArticleGrab(wechat *model.Wechat, startDate, endDat
 				fmt.Sprintf("%s 公众号超过最大请求次数",
 					wechat.WxName), 400, 400)
 		}
-		articles, err := aServ.OfficialAccount.GetArticles(wechat.WxName, sDate.String(), eDate.String(), perPage, page)
+		articles, err := aServ.WxAccount.GetArticles(wechat.WxName, sDate.String(), eDate.String(), perPage, page)
 		if err != nil {
 			return err
 		}
@@ -87,6 +87,6 @@ func (aServ *articleService) ArticleGrab(wechat *model.Wechat, startDate, endDat
 	return nil
 }
 
-func NewArticleService(as model.ArticleStore, client *utils.OfficialAccount, wechat model.WechatStore) model.ArticleService {
+func NewArticleService(as model.ArticleStore, client *qingbo.WxAccount, wechat model.WechatStore) model.ArticleService {
 	return &articleService{as, wechat, client}
 }
