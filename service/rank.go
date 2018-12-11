@@ -66,7 +66,9 @@ func (r *rankService) Rank(wechat *model.Wechat, rank *model.Rank) (rankDetail *
 		// 平均点赞量
 		rankDetail.AvgLikeCount = int64((rankDetail.LikeCount) / days)
 		// 点赞率
-		rankDetail.LikeRate, _ = strconv.ParseFloat(fmt.Sprintf("%.5f", float64(rankDetail.LikeCount)/float64(rankDetail.ReadCount)), 64)
+		if rankDetail.ReadCount > 0 {
+			rankDetail.LikeRate, _ = strconv.ParseFloat(fmt.Sprintf("%.5f", float64(rankDetail.LikeCount)/float64(rankDetail.ReadCount)), 64)
+		}
 		// Wci
 		rankDetail.Wci = calculateWci(rankDetail, days)
 	}

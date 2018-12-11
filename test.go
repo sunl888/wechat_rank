@@ -1,5 +1,10 @@
 package main
 
+import (
+	"fmt"
+	"time"
+)
+
 const DATE_FORMAT = "2006-01-02"
 
 func main() {
@@ -53,4 +58,9 @@ func main() {
 	//	}
 	//}
 	//time.Sleep(5 * time.Second)
+
+	start, _ := time.Parse(DATE_FORMAT, "2018-12-10")
+	end := start.AddDate(0, 0, 5)
+	fmt.Println(time.Now().Sub(end).Hours())
+	fmt.Println(float64((0))/float64(1))
 }

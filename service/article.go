@@ -29,7 +29,7 @@ func (aServ *articleService) ArticleGrab(wechat *model.Wechat, startDate, endDat
 	sDate, _ := time.Parse("2006-01-02", startDate)
 	eDate, _ := time.Parse("2006-01-02", endDate)
 	//
-	if sDate.Sub(eDate).Hours() < 24 {
+	if eDate.Sub(sDate).Hours() < 24 {
 		log.Println("开始日期和结束日期一致")
 		//return errors.BadRequest("开始日期和结束日期一致", nil)
 		return nil
@@ -40,7 +40,7 @@ func (aServ *articleService) ArticleGrab(wechat *model.Wechat, startDate, endDat
 				fmt.Sprintf("%s 公众号超过最大请求次数",
 					wechat.WxName), 400, 400)
 		}
-		articles, err := aServ.WxAccount.GetArticles(wechat.WxName, sDate.String(), eDate.String(), perPage, page)
+		articles, err := aServ.WxAccount.GetArticles(wechat.WxName, sDate.Format(DATE_FORMAT), eDate.Format(DATE_FORMAT), perPage, page)
 		if err != nil {
 			return err
 		}
