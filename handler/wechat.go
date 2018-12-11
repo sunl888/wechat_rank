@@ -160,11 +160,12 @@ func (w *Wechat) Create(ctx *gin.Context) {
 		_ = ctx.Error(err)
 		return
 	}
-	wechat := model.Wechat{
+	// todo 已存在时有bug
+	wechat := &model.Wechat{
 		WxName:     l.WxName,
 		CategoryId: l.CategoryId,
 	}
-	err := service.WechatCreate(ctx, &wechat)
+	err := service.WechatCreate(ctx, wechat)
 	if err != nil {
 		_ = ctx.Error(err)
 		return
