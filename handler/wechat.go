@@ -172,6 +172,29 @@ func (w *Wechat) Create(ctx *gin.Context) {
 	ctx.JSON(200, wechat)
 }
 
+func (w *Wechat) Update(ctx *gin.Context) {
+	l := struct {
+		WxName     string `json:"wx_name" form:"wx_name"`
+		CategoryId int64  `json:"category_id" form:"category_id"`
+	}{}
+	if err := ctx.ShouldBind(&l); err != nil {
+		_ = ctx.Error(err)
+		return
+	}
+
+	wechat, err := service.WechatLoad(ctx, l.WxName)
+	if err != nil {
+		_ = ctx.Error(err)
+		return
+	}
+	wechat.CategoryId = l.CategoryId
+	err = service.WechatUpdate(ctx, wechat)
+	if err != nil {
+		_ = ctx.Error(err)
+		return
+	}
+	ctx.JSON(200, wechat)
+}
 func convert2WechatResp(wechat *model.Wechat, category *model.Category) *WechatResp {
 	return &WechatResp{
 		Id:           wechat.Id,

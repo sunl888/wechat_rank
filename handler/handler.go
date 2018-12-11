@@ -47,6 +47,8 @@ func CreateHTTPHandler(svr *server.Server) http.Handler {
 		authorized.POST("/wechat", wechatHandler.Create)
 		// 删除公众号
 		authorized.DELETE("/wechat/:id", wechatHandler.Delete)
+		// 更新公众号所属分类 wx_name,category_id
+		authorized.PUT("/wechat", wechatHandler.Update)
 
 		// 创建分类
 		authorized.POST("/category", categoryHandler.Create)
