@@ -26,10 +26,10 @@ type WxGroupResponse struct {
 
 // http://api.gsdata.cn/weixin/v1/groups/acounts
 // 添加公众号到清博大数据的自定义分组里,这样有助于清博大数据监控此公众号
-func (w *WxGroup) AddWx2Group(nicknameId string) (wxGroupResponse *WxGroupResponse, err error) {
+func (w *WxGroup) AddWx2Group(wxName string) (wxGroupResponse *WxGroupResponse, err error) {
 	resp, err := w.client.post("groups/acounts", map[string]string{
-		"nickname_id": nicknameId,
-		"group_id":    w.groupId,
+		"wx_name":  wxName,
+		"group_id": w.groupId,
 	}, "weixin")
 	if err != nil {
 		return nil, err

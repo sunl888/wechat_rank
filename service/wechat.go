@@ -31,7 +31,7 @@ func (w *wechatService) WechatCreate(wechat *model.Wechat) error {
 				return err
 			}
 			// 添加公众号到自定义榜单上去
-			_, err = w.WxGroup.AddWx2Group(wechatData.NicknameId)
+			_, err = w.WxGroup.AddWx2Group(wechatData.WxName)
 			if err != nil {
 				return err
 			}
@@ -39,9 +39,9 @@ func (w *wechatService) WechatCreate(wechat *model.Wechat) error {
 			return err
 		}
 	} else {
-		err = errors.BadRequest("公众号已经存在", nil)
+		return errors.BadRequest("公众号已经存在", nil)
 	}
-	return err
+	return nil
 }
 
 func convert2WechatModel(account *qingbo.AccountData, wechat *model.Wechat) {

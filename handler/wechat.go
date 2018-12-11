@@ -199,6 +199,7 @@ func (w *Wechat) Update(ctx *gin.Context) {
 	}
 	ctx.JSON(200, wechat)
 }
+
 func convert2WechatResp(wechat *model.Wechat, category *model.Category) *WechatResp {
 	return &WechatResp{
 		Id:           wechat.Id,

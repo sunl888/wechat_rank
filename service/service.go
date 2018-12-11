@@ -36,6 +36,7 @@ func WechatCreate(ctx *gin.Context, wechat *model.Wechat) error {
 	}
 	return ServiceError
 }
+
 func WechatUpdate(ctx *gin.Context, wechat *model.Wechat) error {
 	if service, ok := ctx.Value("service").(Service); ok {
 		return service.WechatUpdate(wechat)

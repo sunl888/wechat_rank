@@ -21,12 +21,12 @@ func main() {
 		fmt.Println(err)
 	}
 	fmt.Println(weixin)
-	articles, err := account.GetArticles(wxname, "", "", 0, 0)
+	/*articles, err := account.GetArticles(wxname, "", "", 0, 0)
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(articles)
-	wx, err := group.AddWx2Group("107562")
+	fmt.Println(articles)*/
+	wx, err := group.AddWx2Group(wxname)
 	if err != nil {
 		fmt.Println(err)
 	}
