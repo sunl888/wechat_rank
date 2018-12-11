@@ -182,7 +182,11 @@ func (w *Wechat) Update(ctx *gin.Context) {
 		_ = ctx.Error(err)
 		return
 	}
-
+	_, err := service.CategoryLoad(ctx, l.CategoryId)
+	if err != nil {
+		_ = ctx.Error(err)
+		return
+	}
 	wechat, err := service.WechatLoad(ctx, l.WxName)
 	if err != nil {
 		_ = ctx.Error(err)
