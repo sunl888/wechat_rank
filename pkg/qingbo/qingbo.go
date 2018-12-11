@@ -73,7 +73,7 @@ func (q *client) send(method, url string, params map[string]string) (string, err
 	default:
 		return "", errors.QingboError("方法不允许", "方法不允许", 401, 401)
 	}
-	q.signature.SignRequest(req, q)
+	q.signature.signRequest(req, q)
 	log.Printf("[Time: %s] Method:%s,URL: %s\n", time.Now().Format("2006/01/02 15:04:05"), req.Method, req.URL)
 	resp, err := client.Do(req)
 	if err != nil {

@@ -13,7 +13,7 @@ const (
 func main() {
 	client := qingbo.NewQingboClient(AppKey, AppId)
 	account := qingbo.NewWxAccount(client)
-	group := qingbo.NewWxGroup(client)
+	group := qingbo.NewWxGroup(client,"105622")
 
 	wxname := "rmrbwx"
 	weixin, err := account.GetAccount(wxname)
@@ -25,8 +25,8 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(articles[0])
-	wx, err := group.AddWx2Group("107562", "105622")
+	fmt.Println(articles)
+	wx, err := group.AddWx2Group("107562")
 	if err != nil {
 		fmt.Println(err)
 	}

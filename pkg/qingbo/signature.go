@@ -19,7 +19,7 @@ const (
 	ISO8601_BASIC = "20060102T150405Z"
 )
 
-func (s *signature) SignRequest(request *http.Request, qClient *client) {
+func (s *signature) signRequest(request *http.Request, qClient *client) {
 	// 必须使用 GMT Time
 	hour, _ := time.ParseDuration("-8h")
 	now := time.Now().Add(hour).Format(ISO8601_BASIC)
@@ -47,7 +47,7 @@ func (s *signature) SignRequest(request *http.Request, qClient *client) {
 	mac := hmac.New(sha256.New, signingKey)
 	mac.Write([]byte(toSign))
 	signature := fmt.Sprintf("%x", mac.Sum(nil))
-	request.Header.Set("Authorization", "GSDATA-HMAC-SHA256 AppKey="+qClient.AppId+", "+"SignedHeaders="+headers+", signature="+signature)
+	request.Header.Set("Authorization", "GSDATA-HMAC-SHA256 AppKey="+qClient.AppId+", "+"SignedHeaders="+headers+", Signature="+signature)
 }
 
 func (s *signature) createContext(r *http.Request, sumBody string) (creq, headers string) {
