@@ -10,6 +10,20 @@ type dbArticle struct {
 	db *gorm.DB
 }
 
+func (d *dbArticle) ArticleSearch(keyword string, order string, categoryId int64, offset, limit int) (articles []*model.ArticleJoinWechat, count int64, err error) {
+	articles = make([]*model.ArticleJoinWechat, 0, limit)
+	q := d.db.Table("articles a").
+		Select("a.*, w.wx_nickname, w.wx_name").
+		Joins("left join wechats w on a.wx_id = w.id").
+		Where("a.title like ?", "%"+keyword+"%")
+	if categoryId != 0 {
+		q = q.Where("w.category_id = ?", categoryId)
+	}
+	q.Count(&count)
+	err = q.Order(order).Offset(offset).Limit(limit).Find(&articles).Error
+	return
+}
+
 func (d *dbArticle) ArticleListWithWx(wxId int64, order string, offset, limit int) (articles []*model.ArticleJoinWechat, count int64, err error) {
 	articles = make([]*model.ArticleJoinWechat, 0, limit)
 	q := d.db.Table("articles a").
