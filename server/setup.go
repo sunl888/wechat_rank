@@ -111,8 +111,9 @@ func setupStore(s *Server) store.Store {
 }
 
 func setupService(serv *Server) service.Service {
-	qingboClient := qingbo.NewQingboClient(serv.Conf.Qingbo.AppKey, serv.Conf.Qingbo.AppId)
-	officialAccount := qingbo.NewWxAccount(qingboClient)
+	client := qingbo.NewQingboClient(serv.Conf.Qingbo.AppKey, serv.Conf.Qingbo.AppId)
+	wxAccount := qingbo.NewWxAccount(client)
+	wxGroup := qingbo.NewWxGroup(client, serv.Conf.Qingbo.GroupId)
 	s := setupStore(serv)
 	h := hasher.NewArgon2Hasher(
 		[]byte(serv.Conf.AppSalt),
@@ -121,11 +122,12 @@ func setupService(serv *Server) service.Service {
 		uint8(runtime.NumCPU()),
 		32,
 	)
+
 	tSvc := service.NewTicketService(s, time.Duration(serv.Conf.Ticket.TTL)*time.Second)
 	return service.NewService(
-		service.NewWechatService(s, officialAccount),
+		service.NewWechatService(s, wxAccount, wxGroup),
 		service.NewCategoryService(s),
-		service.NewArticleService(s, officialAccount, s),
+		service.NewArticleService(s, wxAccount, s),
 		service.NewRankService(s, s, s),
 		tSvc,
 		service.NewUserService(s, s, tSvc, h),

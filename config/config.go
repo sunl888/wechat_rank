@@ -23,8 +23,9 @@ type RedisConfig struct {
 }
 
 type QingboConfig struct {
-	AppId  string
-	AppKey string
+	AppId   string
+	AppKey  string
+	GroupId string
 }
 type TicketConfig struct {
 	Driver string `json:"driver"` // ticket 使用的驱动 只支持 redis 和 database

@@ -12,14 +12,14 @@ import (
 	"time"
 )
 
-type Signature struct{}
+type signature struct{}
 
 const (
 	VERSION       = "1.0.2"
 	ISO8601_BASIC = "20060102T150405Z"
 )
 
-func (s *Signature) SignRequest(request *http.Request, qClient *QingboClient) {
+func (s *signature) SignRequest(request *http.Request, qClient *client) {
 	// 必须使用 GMT Time
 	hour, _ := time.ParseDuration("-8h")
 	now := time.Now().Add(hour).Format(ISO8601_BASIC)
@@ -29,13 +29,15 @@ func (s *Signature) SignRequest(request *http.Request, qClient *QingboClient) {
 		return
 	}
 	h := sha256.New()
-	sumBody := fmt.Sprintf("%x", h.Sum(body))
-
+	// 这里必须要写入body 不能使用Sum(body) 否则post请求会报错 暂时还没搞懂为啥 下次看到这里再研究(希望不要再看到了)
+	h.Write(body)
+	sumBody := fmt.Sprintf("%x", h.Sum(nil))
 	qClientUrl, err := url.Parse(qClient.Url)
 	request.Header.Set("x-gsdata-date", now)
 	request.Header.Set("Host", qClientUrl.Host)
 	request.Header.Set("Accept", "application/json")
 	request.Header.Set("User-Agent", "GSDATA-v"+VERSION+"-SDK")
+	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	creq, headers := s.createContext(request, sumBody)
 	toSign := s.createStringToSign(now, creq)
@@ -45,11 +47,10 @@ func (s *Signature) SignRequest(request *http.Request, qClient *QingboClient) {
 	mac := hmac.New(sha256.New, signingKey)
 	mac.Write([]byte(toSign))
 	signature := fmt.Sprintf("%x", mac.Sum(nil))
-
-	request.Header.Set("Authorization", "GSDATA-HMAC-SHA256 AppKey="+qClient.AppId+", "+"SignedHeaders="+headers+", Signature="+signature)
+	request.Header.Set("Authorization", "GSDATA-HMAC-SHA256 AppKey="+qClient.AppId+", "+"SignedHeaders="+headers+", signature="+signature)
 }
 
-func (s *Signature) createContext(r *http.Request, sumBody string) (creq, headers string) {
+func (s *signature) createContext(r *http.Request, sumBody string) (creq, headers string) {
 	blacklist := hashset.New()
 	blacklist.Add(
 		"cache-control",
@@ -94,14 +95,14 @@ func (s *Signature) createContext(r *http.Request, sumBody string) (creq, header
 	return canon, signedHeadersString
 }
 
-func (s *Signature) createStringToSign(lTime, creq string) string {
+func (s *signature) createStringToSign(lTime, creq string) string {
 	h := sha256.New()
 	h.Write([]byte(creq))
 	hash := fmt.Sprintf("%x", h.Sum(nil))
 	return "GSDATA-HMAC-SHA256\n" + lTime + "\n" + hash
 }
 
-func (s *Signature) getSigningKey(shortDate, service, secretKey string) []byte {
+func (s *signature) getSigningKey(shortDate, service, secretKey string) []byte {
 	//hmac, use sha1
 	key := []byte("GSDATA" + secretKey)
 	mac := hmac.New(sha256.New, key)

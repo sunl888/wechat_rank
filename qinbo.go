@@ -3,7 +3,6 @@ package main
 import (
 	"code.aliyun.com/zmdev/wechat_rank/pkg/qingbo"
 	"fmt"
-	"github.com/emirpasic/gods/sets/hashset"
 )
 
 const (
@@ -12,20 +11,24 @@ const (
 )
 
 func main() {
-	ws := hashset.New("rmrbwx")
 	client := qingbo.NewQingboClient(AppKey, AppId)
 	account := qingbo.NewWxAccount(client)
-	for i := 0; i < 1; i++ {
-		wxname := ws.Values()[i].(string)
-		_, err := account.GetAccount(wxname)
-		if err != nil {
-			fmt.Println(err)
-		}
-		fmt.Println(wxname)
-		articles, err := account.GetArticles(wxname, "", "", 0, 0)
-		if err != nil {
-			fmt.Println(err)
-		}
-		fmt.Println(articles[0])
+	group := qingbo.NewWxGroup(client)
+
+	wxname := "rmrbwx"
+	weixin, err := account.GetAccount(wxname)
+	if err != nil {
+		fmt.Println(err)
 	}
+	fmt.Println(weixin)
+	articles, err := account.GetArticles(wxname, "", "", 0, 0)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(articles[0])
+	wx, err := group.AddWx2Group("107562", "105622")
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(wx.Data)
 }

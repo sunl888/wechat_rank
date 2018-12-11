@@ -4,7 +4,6 @@ import (
 	"code.aliyun.com/zmdev/wechat_rank/errors"
 	"encoding/json"
 	"strconv"
-	"strings"
 )
 
 var (
@@ -13,7 +12,7 @@ var (
 )
 
 type WxAccount struct {
-	*QingboClient
+	*client
 }
 
 type AccountData struct {
@@ -21,6 +20,8 @@ type AccountData struct {
 	WxName     string `json:"wx_name"`
 	AddTime    string `json:"add_time"`
 	WxNickname string `json:"wx_nickname"`
+	NicknameId string `json:"nickname_id"`
+	WxBiz      string `json:"wx_biz"`
 	WxVip      string `json:"wx_vip"`
 	WxNote     string `json:"wx_note"`
 	WxLogo     string `json:"wx_logo"`
@@ -64,7 +65,9 @@ type ErrorResponse struct {
 }
 
 func (a *WxAccount) GetAccount(accountName string) (*AccountResponse, error) {
-	resp, err := a.QingboClient.get("users", "wx_name="+accountName, "weixin")
+	resp, err := a.client.get("users", map[string]string{
+		"wx_name": accountName,
+	}, "weixin")
 	if err != nil {
 		return nil, err
 	}
@@ -85,29 +88,30 @@ func (a *WxAccount) GetAccount(accountName string) (*AccountResponse, error) {
 }
 
 func (a *WxAccount) GetArticles(wxName, startDate, endDate string, perPage, page int) ([]*ArticleResponse, error) {
-	sb := strings.Builder{}
+	var params map[string]string
+	params = make(map[string]string, 3)
 	if wxName != "" {
-		sb.WriteString("wx_name=" + wxName)
+		params["wx_name"] = wxName
 	} else {
 		return nil, errors.QingboError("", "wx_name 不能为空", 400, 400)
 	}
 	if startDate != "" {
-		sb.WriteString("&start_date=" + startDate)
+		params["start_date"] = startDate
 	}
 	if endDate != "" {
-		sb.WriteString("&end_date=" + endDate)
+		params["end_date"] = endDate
 	}
 	if perPage > 0 {
-		sb.WriteString("&per-page=" + strconv.Itoa(perPage))
+		params["per-page"] = strconv.Itoa(perPage)
 	} else {
-		sb.WriteString("&per-page=" + strconv.Itoa(PerPage))
+		params["per-page"] = strconv.Itoa(PerPage)
 	}
 	if page > 0 {
-		sb.WriteString("&page=" + strconv.Itoa(page))
+		params["page"] = strconv.Itoa(page)
 	} else {
-		sb.WriteString("&page=" + strconv.Itoa(Page))
+		params["page"] = strconv.Itoa(Page)
 	}
-	resp, err := a.QingboClient.get("articles", sb.String(), "weixin")
+	resp, err := a.client.get("articles", params, "weixin")
 	if err != nil {
 		return nil, err
 	}
@@ -129,16 +133,15 @@ func (a *WxAccount) GetArticles(wxName, startDate, endDate string, perPage, page
 	return articlesResp.Data, nil
 }
 
-//http://api.gsdata.cn/weixin/v1/users/rank-days
 func (a *WxAccount) GetRankDays(wxName, startDate string) (*RankDayResponse, error) {
-	sb := strings.Builder{}
+	params := make(map[string]string, 2)
 	if wxName != "" {
-		sb.WriteString("wx_name=" + wxName)
+		params["wx_name"] = wxName
 	}
 	if startDate != "" {
-		sb.WriteString("&start_date=" + startDate)
+		params["start_date"] = startDate
 	}
-	resp, err := a.QingboClient.get("users/rank-days", sb.String(), "weixin")
+	resp, err := a.client.get("users/rank-days", params, "weixin")
 	if err != nil {
 		return nil, err
 	}
@@ -158,6 +161,6 @@ func (a *WxAccount) GetRankDays(wxName, startDate string) (*RankDayResponse, err
 	return rankDayResp, nil
 }
 
-func NewWxAccount(client *QingboClient) *WxAccount {
+func NewWxAccount(client *client) *WxAccount {
 	return &WxAccount{client}
 }
