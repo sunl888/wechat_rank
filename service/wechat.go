@@ -14,7 +14,7 @@ type wechatService struct {
 }
 
 func (w *wechatService) WechatCreate(wechat *model.Wechat) error {
-	tmpWechat, err := w.WechatStore.WechatLoad(wechat.WxName)
+	_, err := w.WechatStore.WechatLoad(wechat.WxName)
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
 			wechatResp, err := w.WxAccount.GetAccount(wechat.WxName)
@@ -38,9 +38,10 @@ func (w *wechatService) WechatCreate(wechat *model.Wechat) error {
 		} else {
 			return err
 		}
+	} else {
+		err = errors.BadRequest("公众号已经存在", nil)
 	}
-	wechat = tmpWechat
-	return nil
+	return err
 }
 
 func convert2WechatModel(account *qingbo.AccountData, wechat *model.Wechat) {
