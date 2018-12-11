@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Auth struct {
@@ -27,7 +28,7 @@ func (a *Auth) Login(c *gin.Context) {
 		_ = c.Error(err)
 		return
 	}
-	setAuthCookie(c, resp.Id, resp.UserId, int(resp.ExpiredAt.Second()))
+	setAuthCookie(c, resp.Id, resp.UserId, int(resp.ExpiredAt.Sub(time.Now()).Seconds()))
 	c.JSON(204, resp)
 }
 
