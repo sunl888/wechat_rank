@@ -79,7 +79,7 @@ func (aServ *articleService) ArticleGrab(wechat *model.Wechat, startDate, endDat
 		requestCount++
 	}
 	// 设置该公众号最近一次获取文章的时间
-	wechat.LastGetArticleAt = eDate.String()
+	wechat.LastGetArticleAt = eDate.Format(DATE_FORMAT)
 	err := aServ.WechatStore.WechatUpdate(wechat)
 	if err != nil {
 		return err

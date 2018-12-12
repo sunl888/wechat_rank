@@ -28,6 +28,12 @@ func headers(n int) []string {
 	}
 	return h[n]
 }
+func footer() []string {
+	return []string{
+		"温馨提示：排名算法来自“清博大数据“",
+		"", "", "", "", "", "", "", "", "", "", "", "", "", "",
+	}
+}
 
 func setHeaders(ctx *gin.Context) {
 	fileName := time.Now().Format(service.DATE_FORMAT)
@@ -88,6 +94,8 @@ func (*Export) ArticleRank(ctx *gin.Context) {
 			fmt.Sprintf("%d", articles[i].Top),                    // 文章序号
 		})
 	}
+	records = append(records, footer())
+
 	_ = streamFile.WriteAll(records)
 	streamFile.Flush()
 	return
@@ -148,6 +156,7 @@ func (*Export) AccountRank(ctx *gin.Context) {
 			fmt.Sprintf("%d", ranks[i].TotalRank),    // 总排名
 		})
 	}
+	records = append(records, footer())
 	_ = streamFile.WriteAll(records)
 	streamFile.Flush()
 	return

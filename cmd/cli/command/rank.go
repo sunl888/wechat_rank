@@ -37,15 +37,13 @@ func NewRankCommand(svr *server.Server) cli.Command {
 			switch c.String("type") {
 			case "week":
 				// 上周一到上周日
-				// TODO date
 				//now := time.Now()
 				//if now.Weekday() == time.Monday {
 				//	startDate = now.AddDate(0, 0, -7).Format(DATE_FORMAT)
 				//	endDate = now.AddDate(0, 0, -1).Format(DATE_FORMAT)
 				//} else {
-				//	return cli.NewExitError(fmt.Sprintf("日期不正确,type:%s,startDate:%s,endDate:%s\n", c.String("type"), startDate, endDate), 1)
+				//	return cli.NewExitError(fmt.Sprintf("没到排名的日期,type:%s\n", c.String("type")), 1)
 				//}
-				// 2018-11-26 2018-12-02
 				startDate = "2018-12-03"
 				endDate = "2018-12-09"
 			case "month":
@@ -53,8 +51,6 @@ func NewRankCommand(svr *server.Server) cli.Command {
 				thisMonth := time.Date(year, month, 1, 0, 0, 0, 0, time.Local)
 				startDate = thisMonth.AddDate(0, -1, 0).Format(DATE_FORMAT)
 				endDate = thisMonth.AddDate(0, 0, -1).Format(DATE_FORMAT)
-				//startDate = "2018-11-01"
-				//endDate = "2018-11-30"
 			case "year":
 				year, _, _ := time.Now().Date()
 				t := time.Date(year-1, 1, 1, 0, 0, 0, 0, time.Local)
@@ -63,11 +59,14 @@ func NewRankCommand(svr *server.Server) cli.Command {
 			default:
 				return cli.NewExitError("类型错误", 2)
 			}
+
 			wechats, count, err := service.WechatList(0, 0)
 			if err != nil {
 				log.Error(fmt.Sprintf("创建排名出错: %+v", err.Error()))
 				return cli.NewExitError(err, 3)
 			}
+			// 抓取最近的文章
+			glabLatestArticle(svr, wechats)
 			var ranks Data
 			for i := 0; i < int(count); i++ {
 				rankDetail, err := service.Rank(wechats[i], &model.Rank{
@@ -92,5 +91,31 @@ func NewRankCommand(svr *server.Server) cli.Command {
 			}
 			return nil
 		},
+	}
+}
+
+func glabLatestArticle(svr *server.Server, wechats []*model.Wechat) {
+	var (
+		s   string
+		e   string
+		err error
+	)
+	service := svr.Service
+	now := time.Now()
+	e = now.AddDate(0, 0, -1).Format(DATE_FORMAT)
+	for i := 0; i < len(wechats); i++ {
+		if wechats[i].LastGetArticleAt == "" {
+			s = now.AddDate(0, 0, -7).Format(DATE_FORMAT)
+		} else {
+			s = wechats[i].LastGetArticleAt
+		}
+		err = service.ArticleGrab(wechats[i], s, e)
+		if err != nil {
+			_ = cli.NewExitError(fmt.Sprintf("文章抓取失败:%+v", err.Error()), 4)
+			return
+		}
+		if (i+1)%10 == 0 {
+			time.Sleep(1100 * time.Millisecond)
+		}
 	}
 }
