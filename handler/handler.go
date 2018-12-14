@@ -20,7 +20,11 @@ func CreateHTTPHandler(svr *server.Server) http.Handler {
 	} else {
 		gin.SetMode(gin.ReleaseMode)
 	}
-
+	var (
+		staticPath = svr.Conf.StaticPath
+		entryFile  = svr.Conf.EntryFile
+	)
+	//svr.Conf.
 	wechatHandler := NewWechat()
 	categoryHandler := NewCategory()
 	rankHandler := NewRank()
@@ -94,6 +98,18 @@ func CreateHTTPHandler(svr *server.Server) http.Handler {
 
 	// 搜索公众号或者文章 type: wechat,article
 	router.GET("/search/:type", wechatHandler.Search)
+
+	// 前端路由
+	router.Static("/static", staticPath)
+	router.StaticFile("/", entryFile)
+
+	router.NoRoute(func(c *gin.Context) {
+		c.JSON(http.StatusNotFound, gin.H{
+			"status": 404,
+			"error":  "404, page not exists!",
+		})
+	})
+
 	return router
 }
 

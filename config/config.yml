@@ -2,6 +2,9 @@ env-var-prefix: "RANK"
 
 app_salt: "some_random_str"
 
+static_path: "./static"
+entry_file: "./index.html"
+
 database:
   driver: "mysql"
   host: "127.0.0.1"

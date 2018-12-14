@@ -34,7 +34,9 @@ type TicketConfig struct {
 type Config struct {
 	EnvVarPrefix string         `json:"env-var-prefix"`
 	ServiceName  string         `json:"service-name"`
-	AppSalt      string         `json:"app_salt"`
+	StaticPath   string         `json:"static-path"`
+	EntryFile    string         `json:"entry-file"`
+	AppSalt      string         `json:"app-salt"`
 	DB           DatabaseConfig `json:"database"`
 	Redis        RedisConfig    `json:"redis"`
 	Qingbo       QingboConfig   `json:"qingbo"`
