@@ -79,7 +79,7 @@ func SetupServer() *Server {
 	s.ServiceName = s.Conf.ServiceName
 	s.RedisClient = setupRedis(s.Conf.Redis.Address + ":" + s.Conf.Redis.Port)
 	s.DB = setupGorm(
-		true,
+		s.Debug,
 		s.Conf.DB.Driver,
 		s.Conf.DB.Host,
 		s.Conf.DB.Port,

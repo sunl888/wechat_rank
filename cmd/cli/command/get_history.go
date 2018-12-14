@@ -23,8 +23,6 @@ func NewGetHistoryCommand(svr *server.Server) cli.Command {
 			now = time.Now()
 			start, _ := time.Parse(DATE_FORMAT, "2018-10-01")
 			end := start.AddDate(0, 0, 5)
-			days := time.Now().Sub(start).Hours() / 24
-			fmt.Println(days)
 			wechats, count, err = service.WechatList(0, 0)
 			if err != nil {
 				return cli.NewExitError(fmt.Sprintf("创建排名出错: %+v", err.Error()), 1)
