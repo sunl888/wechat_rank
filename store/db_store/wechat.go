@@ -2,7 +2,6 @@ package db_store
 
 import (
 	"code.aliyun.com/zmdev/wechat_rank/model"
-	"fmt"
 	"github.com/jinzhu/gorm"
 )
 
@@ -11,7 +10,6 @@ type dbWechat struct {
 }
 
 func (w *dbWechat) WechatSearch(keyword string, limit, offset int) (wechats []*model.WechatAndCategory, count int64, err error) {
-	fmt.Println(keyword)
 	wechats = make([]*model.WechatAndCategory, limit)
 	q := w.db.Table("wechats w").
 		Select("w.*,c.title as category_name").

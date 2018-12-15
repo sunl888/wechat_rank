@@ -4,7 +4,6 @@ import (
 	"code.aliyun.com/zmdev/wechat_rank/errors"
 	"code.aliyun.com/zmdev/wechat_rank/model"
 	"code.aliyun.com/zmdev/wechat_rank/service"
-	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -109,7 +108,6 @@ func (r *Rank) RankChart(ctx *gin.Context) {
 	}
 	rankMap = make(map[int64]*model.Rank, len(ranks))
 	for _, r := range ranks {
-		fmt.Println(r.Id)
 		rankIds = append(rankIds, r.Id)
 		rankMap[r.Id] = r
 	}
