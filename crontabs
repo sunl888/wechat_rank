@@ -1,8 +1,17 @@
-# 每周1早上2:00
-0 0 2 ? * MON cd /app && ./cli get >> /app/cron.log 2>&1
-# 每周1早上2:30
-0 30 2 ? * MON cd /app && ./cli rank --type=week >> /app/cron.log 2>&1
-# 每个月1号早上3:00
-0 0 3 1 * ? cd /app && ./cli rank --type=month >> /app/cron.log 2>&1
-# 每年1月1日早上3:30
-0 30 3 1 1 ? * cd /app && ./cli rank --type=year >> /app/cron.log 2>&1
+# Example of job definition:
+# .---------------- minute (0 - 59)
+# | .------------- hour (0 - 23)
+# | | .---------- day of month (1 - 31)
+# | | | .------- month (1 - 12) OR jan,feb,mar,apr ...
+# | | | | .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat
+# | | | | |
+# * * * * * user-name command to be executed
+
+# 每周一早上2:00
+0 2 * * MON cd /app && ./cli get >> /app/cron.log 2>&1
+# 每周一早上2:30
+30 2 ? * MON cd /app && ./cli rank --type=week >> /app/cron.log 2>&1
+# 每个月一号早上3:00
+0 3 1 * * cd /app && ./cli rank --type=month >> /app/cron.log 2>&1
+# 每年一月一日早上3:30
+30 3 1 1 * cd /app && ./cli rank --type=year >> /app/cron.log 2>&1
