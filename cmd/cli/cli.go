@@ -12,8 +12,8 @@ func main() {
 	app := cli.NewApp()
 	svr := server.SetupServer()
 	app.Name = "微信排名命令行工具"
-	app.Usage = ""
-	app.Version = "0.0.1"
+	app.Usage = "haha"
+	app.Version = "1.0.2"
 	app.Commands = append(app.Commands, command.RegisterCommand(svr)...)
 	if err := app.Run(os.Args); err != nil {
 		log.Fatalln(err)
