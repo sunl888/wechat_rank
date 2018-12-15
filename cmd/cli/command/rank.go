@@ -37,15 +37,15 @@ func NewRankCommand(svr *server.Server) cli.Command {
 			switch c.String("type") {
 			case "week":
 				// 上周一到上周日
-				//now := time.Now()
-				//if now.Weekday() == time.Monday {
-				//	startDate = now.AddDate(0, 0, -7).Format(DATE_FORMAT)
-				//	endDate = now.AddDate(0, 0, -1).Format(DATE_FORMAT)
-				//} else {
-				//	return cli.NewExitError(fmt.Sprintf("没到排名的日期,type:%s\n", c.String("type")), 1)
-				//}
-				startDate = "2018-12-03"
-				endDate = "2018-12-09"
+				now := time.Now()
+				if now.Weekday() == time.Monday {
+					startDate = now.AddDate(0, 0, -7).Format(DATE_FORMAT)
+					endDate = now.AddDate(0, 0, -1).Format(DATE_FORMAT)
+				} else {
+					return cli.NewExitError(fmt.Sprintf("没到排名的日期,type:%s\n", c.String("type")), 1)
+				}
+				//startDate = "2018-12-03"
+				//endDate = "2018-12-09"
 			case "month":
 				year, month, _ := time.Now().Date()
 				thisMonth := time.Date(year, month, 1, 0, 0, 0, 0, time.Local)
