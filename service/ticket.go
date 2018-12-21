@@ -3,6 +3,7 @@ package service
 import (
 	"code.aliyun.com/zmdev/wechat_rank/model"
 	"encoding/hex"
+	"github.com/gin-gonic/gin"
 	"github.com/satori/go.uuid"
 	"time"
 )
@@ -46,6 +47,34 @@ func (tSvc *ticketService) TicketGen(userId int64) (*model.Ticket, error) {
 
 func (tSvc *ticketService) TicketDestroy(ticketId string) error {
 	return tSvc.ts.TicketDelete(ticketId)
+}
+
+func TicketIsValid(ctx *gin.Context, ticketId string) (isValid bool, userId int64, err error) {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.TicketIsValid(ticketId)
+	}
+	return false, 0, ServiceError
+}
+
+func TicketGen(ctx *gin.Context, userId int64) (*model.Ticket, error) {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.TicketGen(userId)
+	}
+	return nil, ServiceError
+}
+
+func TicketDestroy(ctx *gin.Context, ticketId string) error {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.TicketDestroy(ticketId)
+	}
+	return ServiceError
+}
+
+func TicketTTL(ctx *gin.Context) time.Duration {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.TicketTTL()
+	}
+	return 0
 }
 
 func NewTicketService(ts model.TicketStore, ticketTTL time.Duration) model.TicketService {

@@ -35,13 +35,18 @@ func (d *dbRank) RankDetail(rankId, categoryId int64, limit, offset int) (ranks 
 	ranks = make([]*model.RankDetailAndWechat, 0, limit)
 	q := d.db.Table("rank_details r").
 		Select("r.*,w.*").
-		Joins("left join wechats w on r.wx_id = w.id").
-		Where("rank_id = ?", rankId)
+		Joins("left join wechats w on r.wx_id = w.id ").
+		Where("r.rank_id = ?", rankId)
+
 	if categoryId != 0 {
 		q = q.Where(" w.category_id = ?", categoryId)
+	} else {
+		// cid == 0 && 不显示私有的分类下的公众号
+		q = q.Joins("left join categories c on c.id = w.category_id").
+			Where("c.is_private = ?", false)
 	}
 	q.Count(&count)
-	q = q.Omit("created_at,updated_at").Order("wci desc")
+	q = q.Omit("created_at,updated_at").Order("r.wci desc")
 	if limit != 0 {
 		q = q.Offset(offset).Limit(limit)
 	}

@@ -28,6 +28,7 @@ type WechatStore interface {
 	WechatCreate(wechat *Wechat) error
 	WechatUpdate(wechat *Wechat) error
 	WechatListByCategory(cId int64, limit, offset int) (wechats []*Wechat, count int64, err error)
+	WechatCountByCategory(cId int64) (count int64, err error)
 	WechatDelete(id int64) error
 	WechatSearch(keyword string, limit, offset int) (wechats []*WechatAndCategory, count int64, err error)
 }

@@ -3,6 +3,7 @@ package service
 import (
 	"code.aliyun.com/zmdev/wechat_rank/model"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"math"
 	"strconv"
 	"time"
@@ -97,6 +98,34 @@ func calculateWci(rank *model.RankDetail, days int64) float64 {
 	// wci=(30%*o + 30%*a + 30%*h + 10%*p)^2*10
 	wci := math.Pow(0.3*o+0.3*a+0.3*h+0.1*p, 2) * 10
 	return wci
+}
+
+func RankList(ctx *gin.Context, period string) (ranks []*model.Rank, err error) {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.RankList(period)
+	}
+	return nil, ServiceError
+}
+
+func RankLoad(ctx *gin.Context, rankId int64) (rank *model.Rank, err error) {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.RankLoad(rankId)
+	}
+	return nil, ServiceError
+}
+
+func RankDetailListByRankIds(ctx *gin.Context, rankIds []int64, wxId, categoryId int64) (ranks []*model.RankDetailAndWechat, err error) {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.RankDetailListByRankIds(rankIds, wxId, categoryId)
+	}
+	return nil, err
+}
+
+func RankDetail(ctx *gin.Context, rankId, categoryId int64, limit, offset int) (ranks []*model.RankDetailAndWechat, count int64, err error) {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.RankDetail(rankId, categoryId, limit, offset)
+	}
+	return nil, 0, ServiceError
 }
 
 func NewRankService(rs model.RankStore, as model.ArticleStore, ws model.WechatStore) model.RankService {

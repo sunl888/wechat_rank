@@ -18,6 +18,10 @@ func (d *dbArticle) ArticleSearch(keyword string, order string, categoryId int64
 		Where("a.title like ?", "%"+keyword+"%")
 	if categoryId != 0 {
 		q = q.Where("w.category_id = ?", categoryId)
+	} else {
+		// cid == 0 && 不显示私有的分类下的公众号
+		q = q.Joins("left join categories c on c.id = w.category_id").
+			Where("c.is_private = ?", false)
 	}
 	q.Count(&count)
 	err = q.Order(order).Offset(offset).Limit(limit).Find(&articles).Error
@@ -51,6 +55,10 @@ func (d *dbArticle) ArticleRank(startDate, endDate string, categoryId int64, off
 		Where("a.published_at >=? and a.published_at <=?", s, e)
 	if categoryId != 0 {
 		q = q.Where("w.category_id = ?", categoryId)
+	} else {
+		// cid == 0 && 不显示私有的分类下的公众号
+		q = q.Joins("left join categories c on c.id = w.category_id").
+			Where("c.is_private = ?", false)
 	}
 	q.Count(&count)
 	articles = make([]*model.ArticleJoinWechat, 0, limit)

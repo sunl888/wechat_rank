@@ -18,7 +18,7 @@ type CategoryResp struct {
 	Id          int64     `json:"id"`
 	Title       string    `json:"title"`
 	IsPrivate   bool      `json:"is_private"`
-	WechatCount int       `json:"wechat_count"`
+	WechatCount int64     `json:"wechat_count"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }
@@ -123,12 +123,12 @@ func (c *Category) Delete(ctx *gin.Context) {
 }
 
 func convert2CategoryResp(c *model.Category, ctx *gin.Context) *CategoryResp {
-	_, count, _ := service.WechatListByCategory(ctx, c.Id, 0, 0)
+	count, _ := service.WechatCountByCategory(ctx, c.Id)
 	return &CategoryResp{
 		Id:          c.Id,
 		Title:       c.Title,
 		IsPrivate:   c.IsPrivate,
-		WechatCount: int(count),
+		WechatCount: count,
 		CreatedAt:   c.CreatedAt,
 		UpdatedAt:   c.UpdatedAt,
 	}

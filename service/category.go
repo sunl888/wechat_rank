@@ -2,6 +2,7 @@ package service
 
 import (
 	"code.aliyun.com/zmdev/wechat_rank/model"
+	"github.com/gin-gonic/gin"
 )
 
 type categoryService struct {
@@ -48,6 +49,42 @@ func (cs *categoryService) CategoryList(isLogin bool) (c []*model.Category, err 
 	}
 	return
 }
+
+func CategoryCreate(ctx *gin.Context, category *model.Category) error {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.CategoryCreate(category)
+	}
+	return ServiceError
+}
+
+func CategoryList(ctx *gin.Context, isLogin bool) ([]*model.Category, error) {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.CategoryList(isLogin)
+	}
+	return nil, ServiceError
+}
+
+func CategoryLoad(ctx *gin.Context, categoryId int64) (*model.Category, error) {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.CategoryLoad(categoryId)
+	}
+	return nil, ServiceError
+}
+
+func CategoryDelete(ctx *gin.Context, categoryId int64) error {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.CategoryDelete(categoryId)
+	}
+	return ServiceError
+}
+
+func CategoryUpdate(ctx *gin.Context, category *model.Category) error {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.CategoryUpdate(category)
+	}
+	return ServiceError
+}
+
 func NewCategoryService(cs model.CategoryStore) model.CategoryService {
 	return &categoryService{cs}
 }

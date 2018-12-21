@@ -42,6 +42,13 @@ func (w *dbWechat) WechatListByCategory(cId int64, limit, offset int) (wechats [
 	return
 }
 
+func (w *dbWechat) WechatCountByCategory(cId int64) (count int64, err error) {
+	err = w.db.Model(model.Wechat{}).
+		Where("category_id = ?", cId).
+		Count(&count).Error
+	return
+}
+
 func (w *dbWechat) WechatDelete(id int64) error {
 	err := w.db.Delete(model.Article{}, "wx_id = ?", id).Error
 	if err != nil {

@@ -4,6 +4,7 @@ import (
 	"code.aliyun.com/zmdev/wechat_rank/errors"
 	"code.aliyun.com/zmdev/wechat_rank/model"
 	"code.aliyun.com/zmdev/wechat_rank/pkg/qingbo"
+	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 )
 
@@ -42,6 +43,62 @@ func (w *wechatService) WechatCreate(wechat *model.Wechat) error {
 		return errors.BadRequest("公众号已经存在", nil)
 	}
 	return nil
+}
+
+func WechatCreate(ctx *gin.Context, wechat *model.Wechat) error {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.WechatCreate(wechat)
+	}
+	return ServiceError
+}
+
+func WechatUpdate(ctx *gin.Context, wechat *model.Wechat) error {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.WechatUpdate(wechat)
+	}
+	return ServiceError
+}
+
+func WechatLoad(ctx *gin.Context, wxName string) (wechat *model.Wechat, err error) {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.WechatLoad(wxName)
+	}
+	return nil, ServiceError
+}
+
+func WechatList(ctx *gin.Context, limit, offset int) (wechats []*model.Wechat, count int64, err error) {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.WechatList(limit, offset)
+	}
+	return nil, 0, ServiceError
+}
+
+func WechatSearch(ctx *gin.Context, keyword string, limit, offset int) (wechats []*model.WechatAndCategory, count int64, err error) {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.WechatSearch(keyword, limit, offset)
+	}
+	return nil, 0, ServiceError
+}
+
+func WechatDelete(ctx *gin.Context, id int64) error {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.WechatDelete(id)
+	}
+	return ServiceError
+}
+
+func WechatListByCategory(ctx *gin.Context, cId int64, limit, offset int) (wechats []*model.Wechat, count int64, err error) {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.WechatListByCategory(cId, limit, offset)
+	}
+	return nil, 0, ServiceError
+}
+
+func WechatCountByCategory(ctx *gin.Context, cId int64) (count int64, err error) {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.WechatCountByCategory(cId)
+	}
+	return 0, ServiceError
 }
 
 func convert2WechatModel(account *qingbo.AccountData, wechat *model.Wechat) {

@@ -3,11 +3,11 @@ package model
 import "time"
 
 type Rank struct {
-	Id        int64  `gorm:"primary_index" json:"id"`                        // ID
-	Name      string `json:"name"`                                           // 11月26日-02日
-	Period    string `gorm:"type:enum('week','month','year')" json:"period"` // 时间段
-	StartDate string `json:"start_date"`                                     // 开始时间
-	EndDate   string `json:"end_date"`                                       // 结束时间
+	Id        int64     `gorm:"primary_index" json:"id"`                        // ID
+	Name      string    `json:"name"`                                           // 11月26日-02日
+	Period    string    `gorm:"type:enum('week','month','year')" json:"period"` // 时间段
+	StartDate string    `json:"start_date"`                                     // 开始时间
+	EndDate   string    `json:"end_date"`                                       // 结束时间
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }

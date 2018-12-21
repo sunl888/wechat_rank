@@ -6,6 +6,7 @@ import (
 	"code.aliyun.com/zmdev/wechat_rank/pkg/qingbo"
 	"fmt"
 	"github.com/emirpasic/gods/sets/hashset"
+	"github.com/gin-gonic/gin"
 	"log"
 	"time"
 )
@@ -85,6 +86,41 @@ func (aServ *articleService) ArticleGrab(wechat *model.Wechat, startDate, endDat
 		return err
 	}
 	return nil
+}
+
+func ArticleList(ctx *gin.Context, startDate, endDate string, limit, offset int) (articles []*model.Article, err error) {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.ArticleList(startDate, endDate, offset, limit)
+	}
+	return nil, ServiceError
+}
+
+func ArticleSearch(ctx *gin.Context, keyword string, order string, categoryId int64, offset, limit int) (articles []*model.ArticleJoinWechat, count int64, err error) {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.ArticleSearch(keyword, order, categoryId, offset, limit)
+	}
+	return nil, 0, ServiceError
+}
+
+func ArticleGrab(ctx *gin.Context, wechat *model.Wechat, startDate, endDate string) error {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.ArticleGrab(wechat, startDate, endDate)
+	}
+	return ServiceError
+}
+
+func ArticleListWithWx(ctx *gin.Context, wxId int64, order string, limit, offset int) (articles []*model.ArticleJoinWechat, count int64, err error) {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.ArticleListWithWx(wxId, order, offset, limit)
+	}
+	return nil, 0, ServiceError
+}
+
+func ArticleRank(ctx *gin.Context, startDate, endDate string, categoryId int64, offset, limit int) (articles []*model.ArticleJoinWechat, count int64, err error) {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.ArticleRank(startDate, endDate, categoryId, offset, limit)
+	}
+	return nil, 0, ServiceError
 }
 
 func NewArticleService(as model.ArticleStore, client *qingbo.WxAccount, wechat model.WechatStore) model.ArticleService {
