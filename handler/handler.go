@@ -14,17 +14,17 @@ const (
 )
 
 func CreateHTTPHandler(svr *server.Server) http.Handler {
+	var (
+		staticPath = svr.Conf.StaticPath
+		entryFile  = svr.Conf.EntryFile
+	)
 
 	if svr.Debug {
 		gin.SetMode(gin.DebugMode)
 	} else {
 		gin.SetMode(gin.ReleaseMode)
 	}
-	var (
-		staticPath = svr.Conf.StaticPath
-		entryFile  = svr.Conf.EntryFile
-	)
-	//svr.Conf.
+
 	wechatHandler := NewWechat()
 	categoryHandler := NewCategory()
 	rankHandler := NewRank()

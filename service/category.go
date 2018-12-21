@@ -40,8 +40,9 @@ func (cs *categoryService) CategoryDelete(cId int64) (err error) {
 	return nil
 }
 
-func (cs *categoryService) CategoryList() (c []*model.Category, err error) {
-	c, err = cs.CategoryStore.CategoryList()
+func (cs *categoryService) CategoryList(isLogin bool) (c []*model.Category, err error) {
+	onlyShowPrivate := isLogin
+	c, err = cs.CategoryStore.CategoryList(onlyShowPrivate)
 	if err != nil {
 		return nil, err
 	}

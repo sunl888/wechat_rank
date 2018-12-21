@@ -23,9 +23,13 @@ func (c *dbCategory) CategoryLoad(cId int64) (category *model.Category, err erro
 	return
 }
 
-func (c *dbCategory) CategoryList() (categories []*model.Category, err error) {
+func (c *dbCategory) CategoryList(onlyShowPrivate bool) (categories []*model.Category, err error) {
 	categories = make([]*model.Category, 0, 5)
-	err = c.db.Model(model.Category{}).Find(&categories).Error
+	q := c.db.Model(model.Category{})
+	if onlyShowPrivate == false {
+		q = q.Where("is_private = ?", false)
+	}
+	err = q.Find(&categories).Error
 	return
 }
 

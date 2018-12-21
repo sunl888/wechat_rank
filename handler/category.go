@@ -2,6 +2,7 @@ package handler
 
 import (
 	"code.aliyun.com/zmdev/wechat_rank/errors"
+	"code.aliyun.com/zmdev/wechat_rank/handler/middleware"
 	"code.aliyun.com/zmdev/wechat_rank/model"
 	"code.aliyun.com/zmdev/wechat_rank/service"
 	"github.com/gin-gonic/gin"
@@ -16,6 +17,7 @@ type Category struct {
 type CategoryResp struct {
 	Id          int64     `json:"id"`
 	Title       string    `json:"title"`
+	IsPrivate   bool      `json:"is_private"`
 	WechatCount int       `json:"wechat_count"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
@@ -28,15 +30,17 @@ func (*Category) Update(ctx *gin.Context) {
 		return
 	}
 	l := struct {
-		Title string `json:"title" form:"title"`
+		Title     string `json:"title" form:"title"`
+		IsPrivate bool   `json:"is_private" form:"is_private"`
 	}{}
 	if err := ctx.ShouldBind(&l); err != nil {
 		_ = ctx.Error(errors.BindError(err))
 		return
 	}
 	err = service.CategoryUpdate(ctx, &model.Category{
-		Id:    cId,
-		Title: l.Title,
+		Id:        cId,
+		Title:     l.Title,
+		IsPrivate: l.IsPrivate,
 	})
 	if err != nil {
 		_ = ctx.Error(err)
@@ -47,14 +51,16 @@ func (*Category) Update(ctx *gin.Context) {
 
 func (*Category) Create(ctx *gin.Context) {
 	l := struct {
-		Title string `json:"title" form:"title"`
+		Title     string `json:"title" form:"title"`
+		IsPrivate bool   `json:"is_private"`
 	}{}
 	if err := ctx.ShouldBind(&l); err != nil {
 		_ = ctx.Error(errors.BindError(err))
 		return
 	}
 	category := &model.Category{
-		Title: l.Title,
+		Title:     l.Title,
+		IsPrivate: l.IsPrivate,
 	}
 	err := service.CategoryCreate(ctx, category)
 	if err != nil {
@@ -65,7 +71,8 @@ func (*Category) Create(ctx *gin.Context) {
 }
 
 func (*Category) List(ctx *gin.Context) {
-	categories, err := service.CategoryList(ctx)
+	isLogin := middleware.CheckLogin(ctx)
+	categories, err := service.CategoryList(ctx, isLogin)
 	if err != nil {
 		_ = ctx.Error(err)
 		return
@@ -120,6 +127,7 @@ func convert2CategoryResp(c *model.Category, ctx *gin.Context) *CategoryResp {
 	return &CategoryResp{
 		Id:          c.Id,
 		Title:       c.Title,
+		IsPrivate:   c.IsPrivate,
 		WechatCount: int(count),
 		CreatedAt:   c.CreatedAt,
 		UpdatedAt:   c.UpdatedAt,

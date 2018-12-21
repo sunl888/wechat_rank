@@ -83,9 +83,9 @@ func CategoryCreate(ctx *gin.Context, category *model.Category) error {
 	}
 	return ServiceError
 }
-func CategoryList(ctx *gin.Context) ([]*model.Category, error) {
+func CategoryList(ctx *gin.Context, isLogin bool) ([]*model.Category, error) {
 	if service, ok := ctx.Value("service").(Service); ok {
-		return service.CategoryList()
+		return service.CategoryList(isLogin)
 	}
 	return nil, ServiceError
 }
