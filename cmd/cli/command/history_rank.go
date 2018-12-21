@@ -5,7 +5,6 @@ import (
 	"code.aliyun.com/zmdev/wechat_rank/server"
 	"errors"
 	"fmt"
-	"github.com/gpmgo/gopm/modules/log"
 	"github.com/urfave/cli"
 	"sort"
 	"time"
@@ -13,6 +12,7 @@ import (
 
 func NewHistoryRankCommand(svr *server.Server) cli.Command {
 	service := svr.Service
+	log := svr.Logger
 	return cli.Command{
 		Name:  "history_rank",
 		Usage: "获取所有公众号的历史文章列表",
