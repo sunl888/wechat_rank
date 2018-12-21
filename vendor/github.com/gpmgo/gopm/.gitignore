@@ -1,9 +1,0 @@
-.DS_Store
-*.exe
-*.exe~
-repos/
-vendor/
-.vendor/
-.idea/
-gopm.sublime-project
-gopm.sublime-workspace

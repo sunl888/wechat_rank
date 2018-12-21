@@ -4,41 +4,73 @@ import (
 	"code.aliyun.com/zmdev/wechat_rank/errors"
 	"code.aliyun.com/zmdev/wechat_rank/service"
 	"fmt"
+	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/gin-gonic/gin"
-	"github.com/tealeg/xlsx"
-	"time"
+	"strconv"
 )
 
 type Export struct {
 }
 
 const (
-	AccountRank = iota
-	ArticleRank
+	ArticleHeader = iota
+	AccountHeader
+	Table = "Sheet1"
 )
 
-func headers(n int) []string {
-	h := make([][]string, 2)
-	h[AccountRank] = []string{
-		"公众号", "帐号名", "文章总数", "头条文章总数", "阅读总数", "平均阅读数", "点赞总数", "平均点赞数",
-		"头条文章阅读量", "头条文章点赞数", "最大阅读数", "最大点赞数", "点赞率", "WCI", "总排名",
+func setHeader(headIndex int, xlsx *excelize.File, tableName string) {
+	headers := map[int]map[string]string{
+		AccountHeader: {
+			"A3": "公众号", "B3": "帐号名", "C3": "文章总数",
+			"D3": "头条文章总数", "E3": "阅读总数", "F3": "平均阅读数",
+			"G3": "点赞总数", "H3": "平均点赞数", "I3": "头条文章阅读量",
+			"J3": "头条文章点赞数", "K3": "最大阅读数", "L3": "最大点赞数",
+			"M3": "点赞率", "N3": "WCI", "O3": "总排名",
+		},
+		ArticleHeader: {
+			"A3": "公众号", "B3": "帐号名", "C3": "标题",
+			"D3": "摘要", "E3": "URL", "F3": "发布时间",
+			"G3": "阅读数", "H3": "点赞数", "I3": "文章序号",
+		},
 	}
-	h[ArticleRank] = []string{
-		"公众号", "帐号名", "标题", "摘要", "URL", "发布时间", "阅读数", "点赞数", "文章序号",
+	if _, ok := headers[headIndex]; !ok {
+		fmt.Println("指定的 index 不存在")
+		return
 	}
-	return h[n]
-}
-func footer() []string {
-	return []string{
-		"温馨提示：排名算法来自“清博大数据“",
-		"", "", "", "", "", "", "", "", "", "", "", "", "", "",
+	// 水平垂直居中,加粗, 字号:14
+	titleId, _ := xlsx.NewStyle(`{"font":{"size":14,"family":"微软雅黑"},"alignment":{"horizontal":"center","vertical":"center"}}`)
+	headerId, _ := xlsx.NewStyle(`{"font":{"family":"微软雅黑"}}`)
+
+	xlsx.SetCellValue(tableName, "A1", "淮南政务微信排行榜")
+	if headIndex == ArticleHeader {
+		xlsx.MergeCell(tableName, "A1", "I2")
+		xlsx.SetCellStyle(tableName, "A1", "I2", titleId)
+		xlsx.SetCellStyle(tableName, "A3", "I3", headerId)
+	} else if headIndex == AccountHeader {
+		xlsx.MergeCell(tableName, "A1", "O2")
+		xlsx.SetCellStyle(tableName, "A1", "O2", titleId)
+		xlsx.SetCellStyle(tableName, "A3", "O3", headerId)
+	}
+	for k, v := range headers[headIndex] {
+		xlsx.SetCellValue(tableName, k, v)
 	}
 }
 
-func setHeaders(ctx *gin.Context) {
-	fileName := time.Now().Format(service.DATE_FORMAT)
+func setFooter(headIndex int, row string, xlsx *excelize.File, tableName string) {
+	xlsx.SetCellValue(tableName, "A"+row, "清博指数是透明、学术、权威的第三方评价，数据和公式可公开查询：www.gsdata.cn/site/usage")
+	styleId, _ := xlsx.NewStyle(`{"font":{"italic":true}}`)
+	if headIndex == ArticleHeader {
+		xlsx.MergeCell(tableName, "A"+row, "I"+row)
+		xlsx.SetCellStyle(tableName, "A"+row, "I"+row, styleId)
+	} else if headIndex == AccountHeader {
+		xlsx.MergeCell(tableName, "A"+row, "O"+row)
+		xlsx.SetCellStyle(tableName, "A"+row, "O"+row, styleId)
+	}
+}
+
+func setOutStreamHeaders(ctx *gin.Context, filename string) {
 	ctx.Writer.Header().
-		Add("Content-Disposition", "attachment;filename=\""+fileName+".xlsx\"")
+		Add("Content-Disposition", "attachment;filename=\""+filename+".xlsx\"")
 	ctx.Writer.Header().
 		Add("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8")
 	ctx.Writer.Header().
@@ -56,48 +88,36 @@ func (*Export) ArticleRank(ctx *gin.Context) {
 		_ = ctx.Error(errors.BindError(err))
 		return
 	}
-	setHeaders(ctx)
-	builder := xlsx.NewStreamFileBuilder(ctx.Writer)
-	cellStrType := xlsx.CellTypeString
-	cellNumType := xlsx.CellTypeNumeric
-	ct := []*xlsx.CellType{
-		cellStrType.Ptr(), cellStrType.Ptr(),
-		cellStrType.Ptr(), cellStrType.Ptr(), cellStrType.Ptr(),
-		cellStrType.Ptr(), cellNumType.Ptr(), cellNumType.Ptr(), cellNumType.Ptr(),
-	}
-	if err := builder.AddSheet("文章排名", headers(ArticleRank), ct); err != nil {
-		_ = ctx.Error(err)
-		return
-	}
-	streamFile, err := builder.Build()
-	if err != nil {
-		_ = ctx.Error(err)
-		return
-	}
-	defer streamFile.Close()
+	setOutStreamHeaders(ctx, fmt.Sprintf("文章排名榜单(%s~%s)", l.StartDate, l.EndDate))
 	articles, _, err := service.ArticleRank(ctx, l.StartDate, l.EndDate, l.CategoryId, 0, l.Top)
 	if err != nil {
 		_ = ctx.Error(err)
 		return
 	}
-	var records [][]string
+	xlsx := excelize.NewFile()
+	sheetIndex := xlsx.NewSheet(Table)
+	setHeader(ArticleHeader, xlsx, Table)
 	for i := 0; i < len(articles); i++ {
-		records = append(records, []string{
-			articles[i].WxNickname, // 公众号
-			articles[i].WxName,     // 帐号名
-			articles[i].Title,      // 标题
-			articles[i].Desc,       // 摘要
-			articles[i].Url,        // Url
-			articles[i].PublishedAt.Format("2006-01-02 15:04:05"), // 发布时间
-			fmt.Sprintf("%d", articles[i].ReadCount),              // 阅读数
-			fmt.Sprintf("%d", articles[i].LikeCount),              // 点赞数
-			fmt.Sprintf("%d", articles[i].Top),                    // 文章序号
-		})
+		r := strconv.Itoa(i + 4)
+		xlsx.SetCellValue(Table, "A"+r, articles[i].WxNickname)
+		xlsx.SetCellValue(Table, "B"+r, articles[i].WxName)
+		xlsx.SetCellValue(Table, "C"+r, articles[i].Title)
+		xlsx.SetCellValue(Table, "D"+r, articles[i].Desc)
+		xlsx.SetCellValue(Table, "E"+r, articles[i].Url)
+		xlsx.SetCellValue(Table, "F"+r, articles[i].PublishedAt.Format("2006-01-02 15:04:05"))
+		xlsx.SetCellValue(Table, "G"+r, fmt.Sprintf("%d", articles[i].ReadCount))
+		xlsx.SetCellValue(Table, "H"+r, fmt.Sprintf("%d", articles[i].LikeCount))
+		xlsx.SetCellValue(Table, "I"+r, fmt.Sprintf("%d", articles[i].Top))
 	}
-	records = append(records, footer())
+	//TODO 自动调整列宽
 
-	_ = streamFile.WriteAll(records)
-	streamFile.Flush()
+	nextRow := strconv.Itoa(len(articles) + 4)
+	setFooter(ArticleHeader, nextRow, xlsx, Table)
+	xlsx.SetActiveSheet(sheetIndex)
+	err = xlsx.Write(ctx.Writer)
+	if err != nil {
+		_ = ctx.Error(err)
+	}
 	return
 }
 
@@ -111,54 +131,46 @@ func (*Export) AccountRank(ctx *gin.Context) {
 		_ = ctx.Error(errors.BindError(err))
 		return
 	}
-	setHeaders(ctx)
-	builder := xlsx.NewStreamFileBuilder(ctx.Writer)
-	cellStrType := xlsx.CellTypeString
-	cellNumType := xlsx.CellTypeNumeric
-	ct := []*xlsx.CellType{
-		cellStrType.Ptr(), cellStrType.Ptr(),
-		cellNumType.Ptr(), cellNumType.Ptr(), cellNumType.Ptr(),
-		cellNumType.Ptr(), cellNumType.Ptr(), cellNumType.Ptr(), cellNumType.Ptr(),
-		cellNumType.Ptr(), cellNumType.Ptr(), cellNumType.Ptr(), cellNumType.Ptr(), cellNumType.Ptr(),
+	rank, _ := service.RankLoad(ctx, l.RankId)
+	t := map[string]string{
+		"week":  "周榜",
+		"month": "月榜",
+		"year":  "年榜",
 	}
-	if err := builder.AddSheet("公众号排名", headers(AccountRank), ct); err != nil {
-		_ = ctx.Error(err)
-		return
-	}
-	streamFile, err := builder.Build()
-	if err != nil {
-		_ = ctx.Error(err)
-		return
-	}
-	defer streamFile.Close()
+	setOutStreamHeaders(ctx, fmt.Sprintf("微信排名-%s(%s~%s)", t[rank.Period], rank.StartDate, rank.EndDate))
 	ranks, _, err := service.RankDetail(ctx, l.RankId, l.CategoryId, l.Top, 0)
 	if err != nil {
 		_ = ctx.Error(err)
 		return
 	}
-	var records [][]string
+	xlsx := excelize.NewFile()
+	sheetIndex := xlsx.NewSheet(Table)
+	setHeader(AccountHeader, xlsx, Table)
 	for i := 0; i < len(ranks); i++ {
-		records = append(records, []string{
-			ranks[i].WxNickname,                      // 公众号
-			ranks[i].WxName,                          // 帐号名
-			fmt.Sprintf("%d", ranks[i].ArticleCount), // 文章总数
-			fmt.Sprintf("%d", ranks[i].TopCount),     // 头条文章总数
-			fmt.Sprintf("%d", ranks[i].ReadCount),    // 阅读总数
-			fmt.Sprintf("%d", ranks[i].AvgReadCount), // 平均阅读数
-			fmt.Sprintf("%d", ranks[i].LikeCount),    // 点赞总数
-			fmt.Sprintf("%d", ranks[i].AvgLikeCount), // 平均点赞数
-			fmt.Sprintf("%d", ranks[i].TopReadCount), // 头条文章阅读量
-			fmt.Sprintf("%d", ranks[i].TopLikeCount), // 头条文章点赞数
-			fmt.Sprintf("%d", ranks[i].MaxReadCount), // 最大阅读数
-			fmt.Sprintf("%d", ranks[i].MaxLikeCount), // 最大点赞数
-			fmt.Sprintf("%.5f", ranks[i].LikeRate),   // 点赞率
-			fmt.Sprintf("%.5f", ranks[i].Wci),        // WCI
-			fmt.Sprintf("%d", ranks[i].TotalRank),    // 总排名
-		})
+		r := strconv.Itoa(i + 4)
+		xlsx.SetCellValue(Table, "A"+r, ranks[i].WxNickname)
+		xlsx.SetCellValue(Table, "B"+r, ranks[i].WxName)
+		xlsx.SetCellValue(Table, "C"+r, ranks[i].ArticleCount)
+		xlsx.SetCellValue(Table, "D"+r, ranks[i].TopCount)
+		xlsx.SetCellValue(Table, "E"+r, ranks[i].ReadCount)
+		xlsx.SetCellValue(Table, "F"+r, ranks[i].AvgReadCount)
+		xlsx.SetCellValue(Table, "G"+r, ranks[i].LikeCount)
+		xlsx.SetCellValue(Table, "H"+r, ranks[i].AvgLikeCount)
+		xlsx.SetCellValue(Table, "I"+r, ranks[i].TopReadCount)
+		xlsx.SetCellValue(Table, "J"+r, ranks[i].TopLikeCount)
+		xlsx.SetCellValue(Table, "K"+r, ranks[i].MaxReadCount)
+		xlsx.SetCellValue(Table, "L"+r, ranks[i].MaxLikeCount)
+		xlsx.SetCellValue(Table, "M"+r, fmt.Sprintf("%.5f", ranks[i].LikeRate))
+		xlsx.SetCellValue(Table, "N"+r, fmt.Sprintf("%.5f", ranks[i].Wci))
+		xlsx.SetCellValue(Table, "O"+r, ranks[i].TotalRank)
 	}
-	records = append(records, footer())
-	_ = streamFile.WriteAll(records)
-	streamFile.Flush()
+	nextRow := strconv.Itoa(len(ranks) + 4)
+	setFooter(AccountHeader, nextRow, xlsx, Table)
+	xlsx.SetActiveSheet(sheetIndex)
+	err = xlsx.Write(ctx.Writer)
+	if err != nil {
+		_ = ctx.Error(err)
+	}
 	return
 }
 
