@@ -14,6 +14,21 @@ type wechatService struct {
 	*qingbo.WxGroup
 }
 
+func (w *wechatService) WechatSync(wxName string) (wechat *model.Wechat, err error) {
+	resp, err := w.WxAccount.GetAccount(wxName)
+	if err != nil {
+		return nil, err
+	}
+	wechatData := resp.Data[0]
+	wechat = new(model.Wechat)
+	convert2WechatModel(wechatData, wechat)
+	err = w.WechatStore.WechatUpdate(wechat)
+	if err != nil {
+		return nil, err
+	}
+	return
+}
+
 func (w *wechatService) WechatCreate(wechat *model.Wechat) error {
 	_, err := w.WechatStore.WechatLoad(wechat.WxName)
 	if err != nil {
@@ -50,6 +65,13 @@ func WechatCreate(ctx *gin.Context, wechat *model.Wechat) error {
 		return service.WechatCreate(wechat)
 	}
 	return ServiceError
+}
+
+func WechatSync(ctx *gin.Context, wxName string) (wechat *model.Wechat, err error) {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.WechatSync(wxName)
+	}
+	return nil, ServiceError
 }
 
 func WechatUpdate(ctx *gin.Context, wechat *model.Wechat) error {

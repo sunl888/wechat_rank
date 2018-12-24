@@ -68,6 +68,12 @@ func (w *dbWechat) WechatUpdate(wechat *model.Wechat) error {
 		Omit("wx_name").
 		Update(&wechat).
 		Error
+	if err != nil {
+		return err
+	}
+	err = w.db.Where("wx_name = ?", wechat.WxName).
+		First(&wechat).
+		Error
 	return err
 }
 

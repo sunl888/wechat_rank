@@ -91,6 +91,8 @@ func CreateHTTPHandler(svr *server.Server) http.Handler {
 	router.GET("/image_proxy", imageHandler.Handler)
 	// 公众号详情 param: wx_name string
 	router.GET("/wechat", wechatHandler.Show)
+	// 同步公众号信息
+	router.GET("/wechat/sync", wechatHandler.WechatSync)
 	// 最近5周的各项指标排名
 	router.GET("/rank_of_weeks", rankHandler.RankChart)
 	// 最近5周的综合排名

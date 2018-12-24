@@ -28,6 +28,27 @@ type WechatResp struct {
 	UpdatedAt    time.Time `json:"updated_at"`
 }
 
+func (w *Wechat) WechatSync(ctx *gin.Context) {
+	l := struct {
+		WxName string `json:"wx_name" form:"wx_name"`
+	}{}
+	if err := ctx.ShouldBind(&l); err != nil {
+		_ = ctx.Error(err)
+		return
+	}
+	wechat, err := service.WechatSync(ctx, l.WxName)
+	if err != nil {
+		_ = ctx.Error(err)
+		return
+	}
+	category, err := service.CategoryLoad(ctx, wechat.CategoryId)
+	if err != nil {
+		_ = ctx.Error(err)
+		return
+	}
+	ctx.JSON(200, convert2WechatResp(wechat, category))
+}
+
 func (w *Wechat) Search(ctx *gin.Context) {
 	var (
 		sType   string

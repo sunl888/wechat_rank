@@ -35,4 +35,5 @@ type WechatStore interface {
 
 type WechatService interface {
 	WechatStore
+	WechatSync(wxName string) (wechat *Wechat, err error)
 }
