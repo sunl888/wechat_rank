@@ -4,17 +4,40 @@ import (
 	"code.aliyun.com/zmdev/wechat_rank/errors"
 	"code.aliyun.com/zmdev/wechat_rank/model"
 	"code.aliyun.com/zmdev/wechat_rank/pkg/qingbo"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis"
 	"github.com/jinzhu/gorm"
+	"strconv"
+	"time"
 )
 
 type wechatService struct {
 	model.WechatStore
 	*qingbo.WxAccount
 	*qingbo.WxGroup
+	*redis.Client
 }
 
+const (
+	LimitRequest = 3
+	IntervalTime = time.Second * 3600 * 24
+)
+
 func (w *wechatService) WechatSync(wxName string) (wechat *model.Wechat, err error) {
+	if w.Client.Exists(wxName).Val() > 0 {
+		val, err := strconv.Atoi(w.Client.Get(wxName).Val())
+		if err != nil {
+			return nil, err
+		}
+		if val >= LimitRequest {
+			return nil, errors.BadRequest(fmt.Sprintf("拒绝更新,%.3f小时内最多只能请求%d次该接口", IntervalTime.Hours(), LimitRequest), nil)
+		} else {
+			w.Client.Incr(wxName)
+		}
+	} else {
+		w.Client.Set(wxName, 1, IntervalTime)
+	}
 	resp, err := w.WxAccount.GetAccount(wxName)
 	if err != nil {
 		return nil, err
@@ -133,6 +156,6 @@ func convert2WechatModel(account *qingbo.AccountData, wechat *model.Wechat) {
 	wechat.WxNickname = account.WxNickname
 }
 
-func NewWechatService(ws model.WechatStore, wxAccount *qingbo.WxAccount, wxGroup *qingbo.WxGroup) model.WechatService {
-	return &wechatService{ws, wxAccount, wxGroup}
+func NewWechatService(ws model.WechatStore, wxAccount *qingbo.WxAccount, wxGroup *qingbo.WxGroup, redisClient *redis.Client) model.WechatService {
+	return &wechatService{ws, wxAccount, wxGroup, redisClient}
 }

@@ -126,7 +126,7 @@ func setupService(serv *Server) service.Service {
 
 	tSvc := service.NewTicketService(s, time.Duration(serv.Conf.Ticket.TTL)*time.Second)
 	return service.NewService(
-		service.NewWechatService(s, wxAccount, wxGroup),
+		service.NewWechatService(s, wxAccount, wxGroup, serv.RedisClient),
 		service.NewCategoryService(s),
 		service.NewArticleService(s, wxAccount, s),
 		service.NewRankService(s, s, s),
