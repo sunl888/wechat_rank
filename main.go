@@ -9,6 +9,7 @@ import (
 const (
 	LimitRequest = 3
 	IntervalTime = time.Second * 3600 * 24
+	DateFormat   = "2006-01-02"
 )
 
 func main() {
@@ -21,4 +22,11 @@ func main() {
 	fmt.Println(r.Get("t"))
 
 	fmt.Println(fmt.Sprintf("拒绝更新,%f小时内最多只能请求%d次该接口", IntervalTime.Hours(), LimitRequest))
+
+	s, _ := time.Parse("2006-01-02", "2019-01-01")
+	e, _ := time.Parse("2006-01-02", "2019-01-31")
+	year, month, _ := e.Date()
+	thisMonth := time.Date(year, month, 1, 0, 0, 0, 0, time.Local)
+	endDate := thisMonth.AddDate(0, 0, -1).Format("2006-01-02")
+	fmt.Println(endDate, s)
 }
