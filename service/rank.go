@@ -18,10 +18,13 @@ type rankService struct {
 const DATE_FORMAT = "2006-01-02"
 
 func (r *rankService) Rank(wechat *model.Wechat, rank *model.Rank) (rankDetail *model.RankDetail, err error) {
-	rank.Name = rank.StartDate + "~" + rank.EndDate
-	err = r.RankStore.RankCreate(rank)
-	if err != nil {
-		return nil, err
+	// 可以根据传进来的rankId判断这个rank是否需要创建
+	if rank.Id == 0 {
+		rank.Name = rank.StartDate + "~" + rank.EndDate
+		err = r.RankStore.RankCreate(rank)
+		if err != nil {
+			return nil, err
+		}
 	}
 	rankDetail = &model.RankDetail{}
 	articles, err := r.ArticleStore.ArticleListByWxId(rank.StartDate, rank.EndDate, wechat.Id)
@@ -62,10 +65,10 @@ func (r *rankService) Rank(wechat *model.Wechat, rank *model.Rank) (rankDetail *
 	}
 	rankDetail.RankId = rank.Id
 	if rankDetail.ArticleCount > 0 {
-		// 平均阅读量
-		rankDetail.AvgReadCount = int64((rankDetail.ReadCount) / days)
-		// 平均点赞量
-		rankDetail.AvgLikeCount = int64((rankDetail.LikeCount) / days)
+		// [文章]平均阅读量
+		rankDetail.AvgReadCount = int64((rankDetail.ReadCount) / rankDetail.ArticleCount)
+		// [文章]平均点赞量
+		rankDetail.AvgLikeCount = int64((rankDetail.LikeCount) / rankDetail.ArticleCount)
 		// 点赞率
 		if rankDetail.ReadCount > 0 {
 			rankDetail.LikeRate, _ = strconv.ParseFloat(fmt.Sprintf("%.5f", float64(rankDetail.LikeCount)/float64(rankDetail.ReadCount)), 64)
@@ -73,10 +76,6 @@ func (r *rankService) Rank(wechat *model.Wechat, rank *model.Rank) (rankDetail *
 		// Wci
 		rankDetail.Wci = calculateWci(rankDetail, days)
 	}
-	/*err = r.RankStore.RankDetailCreate(rankDetail)
-	if err != nil {
-		return
-	}*/
 	return
 }
 
@@ -126,6 +125,13 @@ func RankDetail(ctx *gin.Context, rankId, categoryId int64, limit, offset int) (
 		return service.RankDetail(rankId, categoryId, limit, offset)
 	}
 	return nil, 0, ServiceError
+}
+
+func RankAllList(ctx *gin.Context) (ranks []*model.Rank, err error) {
+	if service, ok := ctx.Value("service").(Service); ok {
+		return service.RankAllList()
+	}
+	return nil, ServiceError
 }
 
 func NewRankService(rs model.RankStore, as model.ArticleStore, ws model.WechatStore) model.RankService {

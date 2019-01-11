@@ -44,6 +44,7 @@ type RankDetailAndWechat struct {
 
 type RankStore interface {
 	RankCreate(rank *Rank) error
+	RankAllList() (ranks []*Rank, err error)
 	RankDetailCreate(detail *RankDetail) error
 	RankList(period string) (ranks []*Rank, err error)
 	RankLoad(rankId int64) (rank *Rank, err error)

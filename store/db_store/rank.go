@@ -9,6 +9,12 @@ type dbRank struct {
 	db *gorm.DB
 }
 
+func (d *dbRank) RankAllList() (ranks []*model.Rank, err error) {
+	ranks = make([]*model.Rank, 0, 10)
+	err = d.db.Find(&ranks).Error
+	return
+}
+
 func (d *dbRank) RankDetailListByRankIds(rankIds []int64, wxId, categoryId int64) (ranks []*model.RankDetailAndWechat, err error) {
 	ranks = make([]*model.RankDetailAndWechat, 40)
 	q := d.db.Table("rank_details r").
